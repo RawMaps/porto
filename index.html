@@ -1,0 +1,919 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RawMaps">
+<meta name="theme-color" content="#4B6EF5">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="icon" type="image/svg+xml" sizes="192x192" href="icon-192.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<title>RawMaps · Oporto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+button svg,a svg{pointer-events:none}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+:root{
+  --paper:#F5F2EE;--white:#FFFFFF;--ink:#18181B;--ink2:#52525B;--ink3:#A1A1AA;
+  --line:rgba(24,24,27,.06);--line2:rgba(24,24,27,.12);
+  --acc:#4B6EF5;--acc-rgb:75,110,245;--brand:#4B6EF5;
+  --header:#FFFFFF;--header2:#F5F2EE;
+  --d1:#E8541A;--d2:#8B5CF6;--d3:#0EA5E9;--d4:#10B981;--opt:#6B7280;
+  --safe:env(safe-area-inset-bottom,0px);
+}
+html{background:rgba(75,110,245,.04)}
+body{font-family:"DM Sans",sans-serif;background:rgba(75,110,245,.04);color:var(--ink);overscroll-behavior:none;-webkit-overflow-scrolling:touch}
+#app{height:100dvh;width:100%;max-width:430px;margin:0 auto;display:flex;flex-direction:column;background:var(--white);position:relative;overflow:hidden;border-top:1px solid rgba(var(--acc-rgb),.15);border-bottom:1px solid rgba(var(--acc-rgb),.15);box-shadow:0 0 80px rgba(0,0,0,.12)}
+
+@keyframes popIn{0%{transform:scale(.82);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+
+/* INSTALL BANNER */
+#install-banner{flex-shrink:0;display:none;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(135deg,#4B6EF5,#6E48E8);color:#FFFFFF}
+#install-banner.show{display:flex}
+#ib-t{flex:1;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 6px rgba(0,0,0,.18)}
+#ib-btn{padding:6px 14px;border-radius:100px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.15);color:#FFFFFF;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+#ib-x{width:28px;height:28px;min-width:28px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+
+/* HEADER */
+#header{flex-shrink:0;background:#FFFFFF;padding:calc(env(safe-area-inset-top,0px) + 16px) 20px 0;border-bottom:1px solid var(--line)}
+#header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+#logo{display:flex;align-items:baseline;gap:0;cursor:default}
+#logo-word{font-family:"Outfit",sans-serif;font-weight:800;font-size:21px;color:var(--ink);letter-spacing:-.04em;line-height:1}
+#logo-word span{transition:color .3s}
+#logo-sub{display:inline-flex;align-items:center;gap:5px;margin-left:10px}
+#logo-city{font-family:"DM Sans",sans-serif;font-size:10px;font-weight:700;color:var(--ink2);letter-spacing:.02em;text-transform:uppercase}
+#logo-dot{width:3px;height:3px;border-radius:50%;background:var(--ink3);flex-shrink:0}
+#logo-tagline{font-family:"DM Sans",sans-serif;font-size:10px;font-weight:300;color:var(--ink3)}
+#header-actions{display:flex;align-items:center;gap:5px}
+.h-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line2);background:var(--paper);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);transition:transform .15s,background .15s}
+.h-btn:active{transform:scale(.82);background:var(--line2)}
+.h-btn svg{width:15px;height:15px}
+#days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 14px;margin-right:-20px;flex-wrap:nowrap}
+#days::-webkit-scrollbar{display:none}
+.dc{flex-shrink:0;height:32px;padding:0 16px;border-radius:100px;border:1.5px solid var(--line2);background:var(--white);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--ink2);cursor:pointer;transition:transform .15s,background .15s,color .15s,border-color .15s,box-shadow .2s;white-space:nowrap}
+.dc:active{transform:scale(.88)}
+.dc.on{color:#fff;border-color:transparent;animation:popIn .28s ease both;box-shadow:0 4px 12px rgba(var(--acc-rgb),.4)}
+.dc-pre{flex-shrink:0;height:32px;padding:0 16px;border-radius:100px;border:none;background:var(--ink);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap}
+
+/* LANG TOGGLE */
+#lang-tog{height:32px;padding:0 12px;border-radius:100px;border:1.5px solid var(--line2);background:var(--paper);font-family:"DM Mono",monospace;font-size:10px;font-weight:500;color:var(--ink2);cursor:pointer;letter-spacing:.06em;transition:transform .15s,background .15s;white-space:nowrap}
+#lang-tog:active{transform:scale(.88)}
+
+/* MAP ZONE */
+#mzone{flex-shrink:0;height:280px;position:relative;overflow:hidden;background:#DDD8CE;transition:background .3s}
+#mframe{position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;opacity:0;transition:opacity .5s;pointer-events:none}
+#mframe.vis{opacity:1;pointer-events:auto}
+#mz-placeholder{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center}
+#mz-placeholder svg{width:36px;height:36px;opacity:.12;color:var(--ink)}
+#mz-overlay{position:absolute;bottom:0;left:0;right:0;z-index:4;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.5) 45%,transparent 100%);padding:60px 20px 18px;display:flex;align-items:flex-end;justify-content:space-between;pointer-events:none}
+#mz-left{min-width:0}
+#mz-type{font-family:"DM Sans",sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+#mz-name{font-family:"DM Sans",sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.15;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+#mstripe{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--acc);z-index:5;transition:background .3s}
+#mz-mm-btn{width:46px;height:46px;min-width:46px;border-radius:13px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);transition:transform .15s,opacity .15s;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+#mz-mm-btn:active{transform:scale(.82);opacity:.8}
+#mz-mm-btn svg{width:15px;height:15px}
+#sbadge{position:absolute;top:14px;left:14px;display:none;align-items:center;gap:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);color:var(--ink);padding:5px 10px 5px 7px;border-radius:100px;font-family:"DM Mono",monospace;font-size:8px;font-weight:500;letter-spacing:.06em;z-index:6;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+#sbadge.show{display:flex}
+#sbadge svg{width:9px;height:9px}
+
+/* NAV MID */
+#nav-mid{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-bottom:1px solid var(--line)}
+#nbp{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;background:var(--paper);border:1.5px solid var(--line2);cursor:pointer;color:var(--ink2);flex-shrink:0;transition:transform .1s,background .1s}
+#nbp:active{transform:scale(.75);background:var(--line2)}
+#nbp:disabled{opacity:.2;pointer-events:none}
+#nbp svg{width:18px;height:18px;pointer-events:none;display:block}
+#prog-wrap{flex:1;display:flex;align-items:center;gap:8px}
+#prog-inner{position:relative;height:36px;flex:1;display:flex;align-items:center;cursor:pointer;touch-action:none}
+#prog-line{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--line2);transform:translateY(-50%);border-radius:2px;pointer-events:none}
+#prog-fill{position:absolute;left:0;top:0;height:100%;background:var(--acc);border-radius:2px;transition:width .2s ease,background .3s;pointer-events:none}
+#prog-dots{position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.pdot{flex-shrink:0;transition:all .2s}
+.pdot-reg{width:4px;height:4px;border-radius:50%;background:var(--line2)}
+.pdot-reg.done{background:var(--acc)}
+.pdot-key{width:7px;height:7px;background:var(--paper);border:1.5px solid var(--line2);transform:rotate(45deg);border-radius:1px}
+.pdot-key.done{border-color:var(--acc);background:var(--acc)}
+.pdot-half{width:5px;height:5px;border-radius:50%;background:var(--acc);opacity:.5}
+.pdot-cur{width:13px;height:13px;border-radius:50%;background:var(--acc);border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--acc),0 2px 8px rgba(0,0,0,.2);animation:dpulse 1.8s ease-in-out infinite}
+@keyframes dpulse{0%,100%{box-shadow:0 0 0 1.5px var(--acc),0 0 0 4px rgba(var(--acc-rgb),.2),0 2px 6px rgba(0,0,0,.1)}50%{box-shadow:0 0 0 1.5px var(--acc),0 0 0 8px rgba(var(--acc-rgb),.04),0 2px 6px rgba(0,0,0,.1)}}
+#prog-ct{flex-shrink:0;font-size:10px;font-weight:500;color:var(--ink3);font-variant-numeric:tabular-nums;font-family:"DM Mono",monospace;white-space:nowrap}
+#nbn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;border:none;background:var(--acc);color:#fff;flex-shrink:0;cursor:pointer;transition:transform .1s,background .3s,box-shadow .15s;box-shadow:0 4px 16px rgba(var(--acc-rgb),.45)}
+#nbn:active{transform:scale(.75);box-shadow:0 2px 6px rgba(var(--acc-rgb),.3)}
+#nbn:disabled{opacity:.2;pointer-events:none;box-shadow:none}
+#nbn svg{width:18px;height:18px;pointer-events:none;display:block}
+
+/* MILESTONE */
+#milestone{margin:8px 14px;flex-shrink:0;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid;animation:mslide .28s cubic-bezier(.25,.46,.45,.94)}
+#milestone.show{display:flex}
+#ms-ico svg{width:12px;height:12px;display:block}
+#ms-text{font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;line-height:1.3}
+@keyframes mslide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* CARD VIEWPORT */
+#cw{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--white)}
+#cw::-webkit-scrollbar{display:none}
+#card{width:100%;background:var(--white);display:flex;flex-direction:column;position:relative;flex:1}
+#cbody-wrap{position:relative;display:flex;flex-direction:column}
+#cbody{display:flex;flex-direction:column;background:var(--white)}
+#scroll-fade{position:sticky;bottom:0;height:48px;background:linear-gradient(to bottom,rgba(255,255,255,0),var(--white));pointer-events:none;z-index:2;opacity:0;transition:opacity .2s}
+#scroll-cta{position:sticky;bottom:10px;left:50%;transform:translateX(-50%);z-index:3;cursor:pointer;width:28px;height:28px;border-radius:50%;background:var(--white);border:1px solid var(--line2);box-shadow:0 2px 12px rgba(26,26,26,.1);display:flex;align-items:center;justify-content:center;animation:bounce .9s ease-in-out infinite;opacity:0;transition:opacity .2s;pointer-events:none}
+#scroll-cta svg{width:12px;height:12px;color:var(--ink2)}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(4px)}}
+
+#facts{padding:16px 20px 24px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;max-height:80px;overflow:hidden}
+.kf{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:100px;background:var(--paper);border:1px solid var(--line2);font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;font-family:"DM Sans",sans-serif}
+.kf svg{width:9px;height:9px;flex-shrink:0}
+.kf-np{background:rgba(var(--acc-rgb),.09);color:var(--acc);border-color:rgba(var(--acc-rgb),.22);font-weight:600}
+.hl{height:1px;background:var(--line);margin:4px 20px 14px;flex-shrink:0}
+#desc{padding:14px 20px 0;font-size:15px;line-height:1.9;color:var(--ink2);font-weight:300;margin-bottom:16px;padding-bottom:calc(var(--safe) + 4px)}
+#tip{display:flex;gap:10px;align-items:flex-start;margin:0 20px calc(24px + var(--safe));padding:14px 16px;border-radius:14px;background:rgba(var(--acc-rgb),.05);border:1px solid rgba(var(--acc-rgb),.15)}
+#tip svg{width:10px;height:10px;flex-shrink:0;margin-top:4px;color:var(--acc);transition:color .3s}
+#tip p{font-size:12.5px;line-height:1.75;color:var(--ink2);font-weight:300}
+
+/* TIP BAR */
+#tip-bar{flex-shrink:0;display:none;align-items:flex-start;gap:8px;padding:10px 14px 10px 16px;background:rgba(var(--acc-rgb),.06);border-bottom:1px solid rgba(var(--acc-rgb),.1)}
+#tip-bar svg{width:11px;height:11px;flex-shrink:0;margin-top:3px;color:var(--acc)}
+#tip-bar p{font-size:12px;line-height:1.6;color:var(--ink2);flex:1;font-weight:300}
+#tip-close{flex-shrink:0;min-width:22px;width:22px;height:22px;border:none;background:rgba(var(--acc-rgb),.1);border-radius:50%;color:var(--ink3);cursor:pointer;padding:0;-webkit-appearance:none;position:relative}
+#tip-close::before,#tip-close::after{content:'';position:absolute;top:10px;left:6px;width:10px;height:2px;background:currentColor;border-radius:1px;transform-origin:center}
+#tip-close::before{transform:rotate(45deg)}
+#tip-close::after{transform:rotate(-45deg)}
+
+/* LLÉVAME BAR */
+#mz-top-bar{position:absolute;top:0;right:0;left:0;z-index:8;display:flex;align-items:center;gap:10px;background:#FFFFFF;padding:10px 10px 10px 12px;border-bottom:1px solid rgba(var(--acc-rgb),.08)}
+#ab-go{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 20px;border-radius:13px;background:var(--acc);color:#fff;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:transform .15s,opacity .15s;pointer-events:auto;flex:1;box-shadow:0 4px 16px rgba(var(--acc-rgb),.45),0 1px 3px rgba(var(--acc-rgb),.3)}
+#ab-go:active{transform:scale(.97);opacity:.88}
+#ab-go:disabled{opacity:.35;pointer-events:none}
+#ab-go svg{width:13px;height:13px;flex-shrink:0;pointer-events:none}
+
+/* OVERLAYS */
+#search-ov{position:absolute;inset:0;z-index:500;background:var(--white);display:none;flex-direction:column}
+#search-ov.on{display:flex}
+#search-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex-shrink:0}
+#search-input{flex:1;height:46px;border-radius:13px;border:1.5px solid var(--line2);background:var(--paper);padding:0 16px;font-family:"DM Sans",sans-serif;font-size:15px;color:var(--ink);outline:none;font-weight:300;transition:border-color .2s,box-shadow .2s}
+#search-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.12)}
+#search-close{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line2);background:var(--paper);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);flex-shrink:0}
+#search-close svg{width:14px;height:14px}
+#search-results{flex:1;overflow-y:auto;padding:8px 0}
+.sr{display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.sr:active{background:var(--paper)}
+.sr-chip{flex-shrink:0;padding:4px 11px;border-radius:100px;font-family:"DM Sans",sans-serif;font-size:9px;font-weight:700;color:#fff;margin-top:2px;white-space:nowrap}
+.sr-name{font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.2;margin-bottom:3px}
+.sr-desc{font-size:11px;color:var(--ink3);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:300}
+.sr-empty{padding:48px 24px;text-align:center;color:var(--ink3);font-size:14px}
+
+#install-ov{position:absolute;inset:0;z-index:600;display:none;flex-direction:column;align-items:flex-end;background:rgba(24,24,27,.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+#install-ov.on{display:flex;align-items:flex-end}
+#install-sheet{width:100%;background:var(--white);border-radius:28px 28px 0 0;padding:28px 24px calc(32px + var(--safe));animation:sUp .22s cubic-bezier(.25,.46,.45,.94) both;box-shadow:0 -12px 48px rgba(0,0,0,.14)}
+.ish{font-family:"DM Sans",sans-serif;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.03em;margin-bottom:6px}
+.isub{font-size:13px;color:var(--ink3);margin-bottom:24px;line-height:1.6;font-weight:300}
+.is{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-top:1px solid var(--line)}
+.is-num{width:28px;height:28px;border-radius:8px;flex-shrink:0;background:var(--ink);color:#fff;font-family:"DM Mono",monospace;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.is-t{font-family:"DM Sans",sans-serif;font-size:14px;font-weight:500;color:var(--ink);display:block;margin-bottom:3px}
+.is-s{font-size:12px;color:var(--ink3);line-height:1.6;font-weight:300}
+.is-tag{display:inline-flex;align-items:center;background:var(--paper);border:1px solid var(--line2);border-radius:6px;padding:1px 7px;font-family:"DM Mono",monospace;font-size:10px;color:var(--ink2);vertical-align:middle;margin:0 2px}
+#install-ok{margin-top:24px;width:100%;height:54px;border-radius:15px;border:none;background:var(--ink);color:#fff;font-family:"DM Sans",sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+#mov{position:absolute;inset:0;z-index:400;background:rgba(24,24,27,.4);display:flex;align-items:flex-end;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s}
+#mov.on{opacity:1;pointer-events:auto}
+#msh{width:100%;background:var(--white);border-radius:28px 28px 0 0;padding:20px 20px calc(24px + var(--safe));box-shadow:0 -12px 48px rgba(0,0,0,.12);transform:translateY(100%);transition:transform .28s cubic-bezier(.25,.46,.45,.94)}
+#mov.on #msh{transform:translateY(0)}
+.mpull{width:36px;height:4px;border-radius:3px;background:var(--line2);margin:0 auto 20px}
+.mhd{font-family:"DM Sans",sans-serif;font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.03em;margin-bottom:16px}
+.mr{display:flex;align-items:center;gap:14px;padding:12px 8px;border-top:1px solid var(--line);cursor:pointer;border-radius:12px;transition:background .12s}
+.mr:active{background:var(--paper)}
+.mico{width:44px;height:44px;border-radius:13px;background:var(--paper);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ink2)}
+.mico svg{width:17px;height:17px}
+.mtt{font-family:"DM Sans",sans-serif;font-size:15px;font-weight:500;color:var(--ink);display:block}
+.mts{font-size:12px;color:var(--ink3);font-weight:300;margin-top:2px}
+.marr{margin-left:auto;color:var(--ink3)}
+.marr svg{width:13px;height:13px}
+#mcnc{margin-top:14px;width:100%;height:52px;border-radius:15px;border:none;background:var(--acc);font-family:"DM Sans",sans-serif;font-size:15px;font-weight:600;color:#fff;cursor:pointer}
+
+#etsy-nudge{position:absolute;bottom:0;left:0;right:0;z-index:300;background:var(--white);border-radius:24px 24px 0 0;border-top:1px solid var(--line);padding:18px 20px calc(18px + var(--safe));transform:translateY(100%);transition:transform .35s cubic-bezier(.25,.46,.45,.94);box-shadow:0 -8px 32px rgba(24,24,27,.08)}
+#etsy-nudge.show{transform:translateY(0)}
+#en-inner{display:flex;align-items:center;gap:14px}
+#en-stars{display:flex;gap:2px;flex-shrink:0}
+#en-stars svg{width:14px;height:14px;color:#F59E0B}
+#en-copy{flex:1;min-width:0}
+#en-title{font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:2px}
+#en-sub{font-size:11px;color:var(--ink3);line-height:1.4;font-weight:300}
+#en-btn{flex-shrink:0;padding:10px 20px;border-radius:100px;background:var(--ink);color:#fff;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;border:none;cursor:pointer;text-decoration:none;display:flex;align-items:center}
+#en-close{position:absolute;top:14px;right:16px;width:26px;height:26px;border-radius:50%;border:none;background:var(--paper);color:var(--ink3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+
+/* ANTES */
+#antes-ov{position:fixed;inset:0;z-index:120;background:rgba(24,24,27,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+#antes-ov.on{opacity:1;pointer-events:auto}
+#map-ov{position:fixed;inset:0;z-index:250;background:rgba(24,24,27,.5);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+#map-ov.on{opacity:1;pointer-events:auto}
+#map-sh{width:100%;max-width:430px;height:90vh;background:#1a1a1a;border-radius:28px 28px 0 0;overflow:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.25,.46,.45,.94);will-change:transform;display:flex;flex-direction:column}
+#map-ov.on #map-sh{transform:translateY(0)}
+#map-bar{height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#1a1a1a;border-radius:28px 28px 0 0}
+#map-bar-title{font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.02em}
+#map-close{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-appearance:none}
+#map-close svg{width:11px;height:11px;display:block;flex-shrink:0}
+#map-frame{flex:1;border:none;width:100%;display:block}
+#antes-sh{width:100%;max-width:430px;max-height:88vh;background:var(--white);border-radius:28px 28px 0 0;overflow-y:auto;scrollbar-width:none;padding:0 0 calc(24px + var(--safe));transform:translateY(30px);transition:transform .25s cubic-bezier(.25,.46,.45,.94);box-shadow:0 -12px 48px rgba(0,0,0,.14)}
+#antes-ov.on #antes-sh{transform:translateY(0)}
+#antes-sh::-webkit-scrollbar{display:none}
+.antes-pull{width:36px;height:4px;border-radius:3px;background:var(--line2);margin:14px auto 6px}
+.antes-hd{padding:10px 20px 16px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+#antes-close{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:none;background:var(--paper);color:var(--ink3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;margin-top:2px;transition:background .15s}
+#antes-close:active{background:var(--line2)}
+.antes-ttl{font-family:"DM Sans",sans-serif;font-size:19px;font-weight:700;color:var(--ink);letter-spacing:-.03em}
+.antes-sub{font-size:12px;color:var(--ink3);margin-top:3px;font-weight:300}
+.antes-sec{padding:10px 20px 0}
+.antes-lbl{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;margin-top:12px}
+.antes-lbl span{display:inline}
+.antes-row{display:flex;gap:10px;padding:13px 15px;border-radius:14px;margin-bottom:8px;align-items:flex-start}
+.antes-row-ob{background:#FFF1F2;border:1px solid #FECDD3}
+.antes-row-rec{background:#FFFBEB;border:1px solid #FDE68A}
+.antes-row-act{background:#F0FDF4;border:1px solid #BBF7D0}
+.antes-row-inf{background:var(--paper);border:1px solid var(--line)}
+.ar-ico{font-size:16px;line-height:1;flex-shrink:0;margin-top:1px}
+.ar-body{flex:1;min-width:0}
+.ar-name{font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:3px}
+.ar-desc{font-size:12px;color:var(--ink2);line-height:1.5;font-weight:300}
+.ar-tag{display:inline-block;font-family:"DM Mono",monospace;font-size:10px;padding:2px 7px;border-radius:5px;margin-top:4px}
+.ar-tag-ob{background:#FEE2E2;color:#DC2626}
+.ar-tag-rec{background:#FEF3C7;color:#D97706}
+.ar-tag-fk{background:#F3E8FF;color:#7C3AED}
+
+/* ═══ HIGH CONTRAST / DARK MODE ═══ */
+.hc{
+  --paper:#232326;--white:#18181B;--ink:#F4F4F5;--ink2:rgba(244,244,245,.68);--ink3:rgba(244,244,245,.38);
+  --line:rgba(244,244,245,.07);--line2:rgba(244,244,245,.14);
+  --header:#18181B;--header2:#232326;
+}
+.hc html,.hc body{background:#0F0F11}
+.hc #app{background:var(--white);border-color:rgba(var(--acc-rgb),.25)}
+/* Buttons that use var(--ink) as bg become near-white in HC — text invisible without these */
+.hc #install-ok{background:var(--acc)!important;color:#fff!important}
+.hc #en-btn{background:var(--acc)!important;color:#fff!important}
+.hc .is-num{background:var(--acc)!important;color:#fff!important}
+/* Inline styles from setAcc() override these only if !important */
+.hc .dc-pre{background:var(--acc)!important;color:#fff!important;border-color:transparent!important}
+.hc .dc:not(.on){background:var(--paper)!important;border-color:var(--line2)!important;color:var(--ink2)!important}
+.hc #mcnc{color:var(--ink);border-color:var(--line2);background:transparent}
+.hc .h-btn{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc #lang-tog{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc .kf{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc #nbp{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc #search-input{background:var(--paper);color:var(--ink);border-color:var(--line2)}
+.hc #search-close{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc #mz-top-bar{background:rgba(24,24,27,.95);border-color:rgba(255,255,255,.08)}
+.hc #mz-mm-btn{background:var(--paper);border-color:var(--line2);color:var(--ink2)}
+.hc #mzone{background:#0F0F11}
+.hc .antes-row-ob{background:rgba(220,38,38,.14);border-color:rgba(220,38,38,.28)}
+.hc .antes-row-rec{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.24)}
+.hc .antes-row-act{background:rgba(5,150,105,.12);border-color:rgba(5,150,105,.24)}
+.hc .antes-row-inf{background:var(--paper);border-color:var(--line2)}
+.hc #install-sheet,.hc #msh,.hc #antes-sh{background:var(--white)}
+.hc .mico{background:var(--paper);border-color:var(--line2)}
+.hc #tip{background:rgba(var(--acc-rgb),.08);border-color:rgba(var(--acc-rgb),.2)}
+.hc #scroll-fade{background:linear-gradient(to bottom,transparent,var(--white))}
+.hc #scroll-cta{background:var(--paper);border-color:var(--line2)}
+.hc #sbadge{background:rgba(24,24,27,.92);color:var(--ink)}
+.hc .ar-name{color:var(--ink)}
+.hc #header{background:var(--white);border-color:var(--line)}
+
+@keyframes sUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes sDn{from{transform:translateY(0)}to{transform:translateY(105%)}}
+@keyframes fIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media print{body,#app{display:none!important}}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1181f74a-5afa-4d5f-8915-95b726616e6c"></script>
+</head>
+<body ontouchstart="">
+<div id="app">
+
+  <div id="install-banner">
+    <div id="ib-t"><span id="ib-txt">Guarda RawMaps como app</span></div>
+    <button id="ib-btn" onclick="showInstall()"><span id="ib-btn-txt">Cómo</span></button>
+    <button id="ib-x" onclick="dismissInstall()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+
+  <div id="header">
+    <div id="header-top">
+      <div id="logo">
+        <div id="logo-word">raw<span id="logo-acc">maps</span></div>
+        <div id="logo-sub"><span id="logo-city">Porto</span></div>
+      </div>
+      <div id="header-actions">
+        <button id="lang-tog" onclick="swLang()">ES</button>
+        <button class="h-btn" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+        <button class="h-btn" onclick="oMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+      </div>
+    </div>
+    <div id="days"></div>
+  </div>
+
+  <!-- TIP above map with close button -->
+  <div id="tip-bar" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a7 7 0 017 7c0 3.5-2.5 6-4 7.5V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2.5C7.5 15 5 12.5 5 9a7 7 0 017-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+    <p id="tip-text"></p>
+    <button id="tip-close" onclick="document.getElementById('tip-bar').style.display='none'"></button>
+  </div>
+
+  <div id="mzone">
+    <div id="mz-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <iframe id="mframe" src="" title="map" allow="fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div id="mz-overlay">
+      <div id="mz-left"><div id="mz-type"></div><div id="mz-name">–</div></div>
+    </div>
+    <div id="mstripe"></div>
+    <!-- Top-right row: Take me there button + MyMaps button -->
+    <div id="mz-top-bar">
+      <a id="ab-go" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        <span id="lgo">Llévame</span>
+      </a>
+      <button id="mz-mm-btn" onclick="openMyMaps()" title="Ver en MyMaps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      </button>
+    </div>
+    <div id="sbadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg><span id="sbadge-t">INICIO</span></div>
+  </div>
+
+  <!-- Timeline below map -->
+  <div id="nav-mid">
+    <button id="nbp" onclick="go(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 5.5L9 12l6.5 6.5" fill="none"/></svg></button>
+    <div id="prog-wrap">
+      <div id="prog-inner">
+        <div id="prog-line"><div id="prog-fill"></div></div>
+        <div id="prog-dots"></div>
+      </div>
+      <div id="prog-ct">1/1</div>
+    </div>
+    <button id="nbn" onclick="go(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 5.5L15 12l-6.5 6.5"/></svg></button>
+  </div>
+
+  <!-- milestone removed -->
+  <div id="milestone" style="display:none"><div id="ms-ico"></div><span id="ms-text"></span></div>
+
+  <div id="cw">
+    <div id="card">
+      <div id="cbody-wrap">
+        <div id="cbody">
+          <div id="facts"></div>
+          <div id="desc"></div>
+          <div id="tip" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a7 7 0 017 7c0 3.5-2.5 6-4 7.5V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2.5C7.5 15 5 12.5 5 9a7 7 0 017-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg><p></p></div>
+        </div>
+        <div id="scroll-fade"></div>
+        <div id="scroll-cta" onclick="scrollToBottom()"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><polyline points="6 9 12 15 18 9" stroke="var(--acc)" stroke-width="2.5"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAYS -->
+  <div id="search-ov">
+    <div id="search-bar">
+      <input id="search-input" type="search" placeholder="Buscar en todos los días..." oninput="doSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button id="search-close" onclick="closeSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div id="search-results"></div>
+  </div>
+
+  <div id="install-ov" onclick="if(event.target===this)closeInstall()">
+    <div id="install-sheet">
+      <div class="mpull"></div>
+      <div class="ish" id="inst-title">Guardar como app</div>
+      <div class="isub" id="inst-sub">Se ve mejor y funciona sin conexión.</div>
+      <div class="is"><div class="is-num" style="background:#007AFF">iOS</div><div><span class="is-t" id="inst-ios-t">iPhone / iPad · Safari</span><span class="is-s" id="inst-ios-d">Abre la guía en Safari → toca <span class="is-tag">↑</span> → "Añadir a pantalla de inicio" → Añadir</span></div></div>
+      <div class="is"><div class="is-num" style="background:#3DDC84;color:#1A1A1A">And</div><div><span class="is-t" id="inst-and-t">Android · Chrome</span><span class="is-s" id="inst-and-d">Abre la guía en Chrome → toca <span class="is-tag">⋮</span> → "Añadir a pantalla de inicio" → Instalar</span></div></div>
+      <button id="install-ok" onclick="closeInstall()"><span id="inst-ok-txt">Entendido</span></button>
+    </div>
+  </div>
+
+  <div id="mov" onclick="if(event.target===this)cMenu()">
+    <div id="msh">
+      <div class="mpull" onclick="cMenu()" style="cursor:pointer"></div>
+      <div class="mhd" id="mhd">Opciones</div>
+      <div class="mr" onclick="openGuide()"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div><span class="mtt" id="mtg">Guía completa</span><span class="mts" id="msg">Descarga o imprime si no tienes datos</span></div><span class="marr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+      <div class="mr" onclick="openFeedback();cMenu()"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div><span class="mtt" id="mtfb">Dar feedback</span><span class="mts" id="msfb">Ayúdanos a mejorar</span></div><span class="marr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+      <div class="mr" onclick="showInstall();cMenu()"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"/></svg></div><div><span class="mtt" id="mtinstall">Guardar como app</span><span class="mts" id="msinstall">En formato app se ve mucho mejor</span></div><span class="marr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+      <div class="mr" onclick="tHC()"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></div><div><span class="mtt" id="mthc">Alto contraste</span><span class="mts" id="mshc">Para leer al sol</span></div><span class="marr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+      <button id="mcnc" onclick="cMenu()">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="etsy-nudge">
+    <button id="en-close" onclick="closeEtsyNudge()">✕</button>
+    <div id="en-inner">
+      <div id="en-stars">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div id="en-copy"><div id="en-title">¿Te está siendo útil la guía?</div><div id="en-sub">Una reseña nos ayuda mucho — 30 segundos.</div></div>
+      <a id="en-btn" href="https://www.etsy.com/your-shop/reviews" target="_blank" rel="noopener"><span id="en-btn-txt">Valorar</span></a>
+    </div>
+  </div>
+
+  <div id="map-ov" onclick="if(event.target===this)closeMap()">
+    <div id="map-sh">
+      <div id="map-bar">
+        <span id="map-bar-title">RawMaps</span>
+        <button id="map-close" onclick="closeMap()"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></button>
+      </div>
+      <iframe id="map-frame" src="" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div id="antes-ov" onclick="if(event.target===this)closeAntes()">
+    <div id="antes-sh">
+      <div class="antes-pull"></div>
+      <div class="antes-hd"><div><div class="antes-ttl" id="antes-ttl">Antes de tu viaje</div><div class="antes-sub" id="antes-sub-txt">Todo lo que necesitas preparar</div></div><button id="antes-close" onclick="closeAntes()">✕</button></div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl1">Entradas a reservar</span> <span></span></div>
+        <div class="antes-row antes-row-ob">
+          <div class="ar-ico">📚</div>
+          <div class="ar-body">
+            <div class="ar-name" id="an-lellon">Livraria Lello · D1</div>
+            <div class="ar-desc" id="an-lellod">Librería art nouveau de 1906. Entrada 8€ (descontable en compra). Sin reserva no se entra en temporada alta. Reservar en lello.pt · Llegar a las 9h si quieres sin cola.</div>
+            <span class="ar-tag ar-tag-fk" id="an-lellot">Rowling vivió cerca. Negó la conexión con Hogwarts. Cola brutal. Se puede fotografiar de noche desde el escaparate.</span>
+          </div>
+        </div>
+      </div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl2">Reservar si puedes</span> <span></span></div>
+        <div class="antes-row antes-row-rec">
+          <div class="ar-ico">🍷</div>
+          <div class="ar-body"><div class="ar-name" id="an-winen">Cata de vino en Gaia · D2</div><div class="ar-desc" id="an-wined">Las bodegas se llenan en temporada alta. Reservar online 1-2 días antes en la web de la bodega. Graham's mejor terraza, Taylor's mejor tour.</div><span class="ar-tag ar-tag-rec">Recomendado</span></div>
+        </div>
+        <div class="antes-row antes-row-rec">
+          <div class="ar-ico">🎵</div>
+          <div class="ar-body"><div class="ar-name" id="an-musican">Casa da Música · Bonus</div><div class="ar-desc" id="an-musicad">Consultar programa en casadamusica.com la noche anterior. Si hay concierto, comprar online.</div><span class="ar-tag ar-tag-rec">Si hay concierto</span></div>
+        </div>
+      </div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl3">Gestionar antes</span> <span></span></div>
+        <div class="antes-row antes-row-act">
+          <div class="ar-ico">🚗</div>
+          <div class="ar-body"><div class="ar-name" id="an-carn">Alquiler de coche · D3</div><div class="ar-desc" id="an-card">Reservar con antelación para el day trip a Guimarães y Braga. Llevar carnet de conducir. Pedir vía verde para peajes al recoger el coche.</div></div>
+        </div>
+      </div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl4">Apps a instalar</span> <span></span></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🚇</div><div class="ar-body"><div class="ar-name" id="an-andanten">Andante / Porto</div><div class="ar-desc" id="an-andanted">Metro y autobús. Billete único 1.50€ · Día 5.20€. Tarjeta Andante recargable (0.60€).</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🗺️</div><div class="ar-body"><div class="ar-name" id="an-gmapsn">Google Maps offline</div><div class="ar-desc" id="an-gmapsd">Descargar la zona de Oporto offline antes de salir.</div></div></div>
+      </div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl5">Llegar</span> <span></span></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">✈️</div><div class="ar-body"><div class="ar-name" id="an-airportn">OPO → Centro</div><div class="ar-desc" id="an-airportd"><b>Metro línea E</b> (violeta) → Trindade · 35 min · 2€ · Sale cada 30 min.<br>Taxi: 20-25€ · VTC: 12-18€.</div></div></div>
+      </div>
+      <div class="antes-sec">
+        <div class="antes-lbl"><span data-str="anteslbl6">Saber antes</span> <span></span></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🌦️</div><div class="ar-body"><div class="ar-name" id="an-weathern">Mayo en Oporto</div><div class="ar-desc" id="an-weatherd">15-20°C, posibilidad de lluvia. Llevar chubasquero. Los días despejados son perfectos para la Foz y los miradores.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🍺</div><div class="ar-body"><div class="ar-name" id="an-beern">Superbock, no Sagres</div><div class="ar-desc" id="an-beerd">Superbock es la cerveza de Oporto. Pedir Sagres en un bar portuense levanta suspicacias.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🤝</div><div class="ar-body"><div class="ar-name" id="an-tipsn">Propinas</div><div class="ar-desc" id="an-tipsd">Restaurante con servicio en mesa: 5-10%. Bares y cafeterías de mostrador: no se espera.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🏛️</div><div class="ar-body"><div class="ar-name" id="an-tilesn">Azulejos desprendidos</div><div class="ar-desc" id="an-tilesd">Los azulejos caídos y las fachadas deterioradas son la estética de la ciudad, no descuido. Parte del carácter de Oporto.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">💧</div><div class="ar-body"><div class="ar-name" id="an-watern">Agua del grifo</div><div class="ar-desc" id="an-waterd">Potable y de buena calidad.</div></div></div>
+      </div>
+      <div class="antes-sec" style="padding-bottom:6px">
+        <div class="antes-lbl"><span data-str="anteslbl7">Comer en Oporto</span> <span></span></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🐟</div><div class="ar-body"><div class="ar-name" id="an-bacalhaun">Bacalhau · variable</div><div class="ar-desc" id="an-bacalhaud">El plato de Portugal. Los más habituales: à brás (con huevo y patata paja), com natas (gratinado) y assado (a la brasa).</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🥩</div><div class="ar-body"><div class="ar-name" id="an-francesinhan">Francesinha · 12-15€</div><div class="ar-desc" id="an-francesinhad">El sandwich de Oporto: pan tostado, carne, salchicha, jamón, queso fundido y salsa de cerveza especiada. Original de Oporto.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🐟</div><div class="ar-body"><div class="ar-name" id="an-fishn">Pez a la brasa — Matosinhos · 15-22€</div><div class="ar-desc" id="an-fishd">Dourada, robalo o linguado en brasa de carbón en Rua Heróis de França. La mejor comida del viaje.</div></div></div>
+        <div class="antes-row antes-row-inf"><div class="ar-ico">🍷</div><div class="ar-body"><div class="ar-name" id="an-tonicn">Porto Tónico · 4-6€</div><div class="ar-desc" id="an-tonicd">Vino de Oporto blanco con tónica y hielo. El aperitivo local del verano en los bares del río.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+const SPOTS=[{"day":"d1","name":"Iglesia del Carmen y Casa Escondida","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.1473563,"lng":-8.6162729,"maps":"https://maps.google.com/?cid=94155390668792436","price":"Gratis exterior · Iglesia do Carmo 3€","time":"20-30 min","hours":"Exterior 24h · Iglesia Lun-Sáb 9-18h","rating":"4.7 Google Maps","desc":"Lo que parece una sola iglesia enorme son dos: la dos Carmelitas (1628, monjas) y la do Carmo (1768, monjes). Entre ellas hay una casa de 1 metro de ancho — la más estrecha de Oporto — construida para que monjas y monjes no tuvieran pared compartida. Sirvió para reuniones secretas durante la invasión napoleónica.","tip":"La fachada de azulejos de la Igreja do Carmo (lateral sur) es una de las mejores de la ciudad. Mirarla desde la acera de enfrente.","lines":"","name_en":"Carmo Church & The Hidden House","desc_en":"What looks like one huge church is actually two: the dos Carmelitas (1628, nuns) and the do Carmo (1768, monks). Between them sits a one-metre-wide house — Porto's narrowest — built to keep the nuns and monks from sharing a wall. It was used for secret meetings during the Napoleonic invasion.","tip_en":"The tiled facade of the Igreja do Carmo (south side) is one of the best in the city. View it from the pavement across the street."},{"day":"d1","name":"Azulejos Painel - Joana Vasconcelos","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1479824,"lng":-8.6150086,"maps":"https://maps.google.com/?cid=14515026704818594690","price":"Gratis · exterior","time":"5 min","hours":"24h","rating":"","desc":"Panel de azulejos contemporáneo de Joana Vasconcelos en la fachada del edificio adyacente a Lello. Arte público de gran formato que actualiza la tradición azulejeira portuguesa. Difícil de no ver pero fácil de pasar sin identificar quién lo hizo.","tip":"En la misma parada que Lello — mirar la fachada antes de hacer cola.","lines":"","name_en":"Tile Panel by Joana Vasconcelos","desc_en":"A large-format contemporary tile panel by Joana Vasconcelos on the facade of the building next to Lello. Public art that updates the Portuguese azulejo tradition. Hard to miss, easy to walk past without knowing who made it.","tip_en":"Same stop as Lello — look at the facade before joining the queue."},{"day":"d1","name":"Livraria Lello","type":"spot","intensity":2,"isFriki":true,"icon":"1751","lat":41.1469055,"lng":-8.6147746,"maps":"https://maps.google.com/?cid=9153637019004560463","price":"8€ entrada (descontable en compra) · Reservar online","time":"30-45 min","hours":"Lun-Dom 9-19h · Cierres variables, confirmar","rating":"4.5 Google Maps","desc":"Librería art nouveau de 1906: escalera curva roja, techo de cristal emplomado con el lema 'Decus in Labore'. El interior es más iglesia que tienda. J.K. Rowling vivió en el barrio entre 1991 y 1993. La conexión con la escalera de Hogwarts es popular, pero ella misma la negó explícitamente. La escalera no justifica la cola — se puede fotografiar de noche desde el escaparate.","tip":"La cola es constante. Si no quieres entrar, fotografíala de noche a través del escaparate — el interior está iluminado y la escalera se ve. No es lo mismo, pero sin perder dos horas.","lines":"","name_en":"Lello Bookshop","desc_en":"An art nouveau bookshop from 1906: red curved staircase, leaded glass ceiling with the motto 'Decus in Labore'. The interior feels more like a cathedral than a shop. J.K. Rowling lived in the area between 1991 and 1993. The Hogwarts staircase connection is popular but she explicitly denied it. The staircase alone isn't worth the queue — you can photograph it at night through the shop window.","tip_en":"The queue is constant at all hours. If you don't want to go in, photograph the interior at night through the shop window — it's lit inside and the staircase is clearly visible. Not the same, but without the wait."},{"day":"d1","name":"Torre de los Clérigos","type":"spot","intensity":1,"isFriki":false,"icon":"1706","lat":41.1456705,"lng":-8.6145977,"maps":"https://maps.google.com/?cid=4782476540364618785","price":"8€ (incluye iglesia y museo)","time":"45-60 min","hours":"Diario 9-19h","rating":"4.7 Google Maps","desc":"Torre barroca de 76 metros (1763) diseñada por Nicola Nasoni. Fue referencia visual para barcos que entraban por el Duero. Subir los 200 escalones para la mejor panorámica del centro histórico. Buen primer punto después de dejar el equipaje — orienta visualmente toda la ciudad desde arriba.","tip":"La mejor panorámica de Oporto por precio. Llegar a las 9h cuando abre — desde las 11h hay cola. Está a 3 min a pie de Lello.","lines":"","name_en":"Clérigos Tower","desc_en":"A 76-metre baroque tower (1763) designed by Nicola Nasoni. It was a visual landmark for ships entering the Douro. Climb the 200 steps for the best panoramic view of the historic centre. A great first stop after dropping your luggage — it orients you visually across the whole city.","tip_en":"Porto's best view for the price. Arrive at 9:00 when it opens — queues build from 11:00. It's a 3-minute walk from Lello."},{"day":"d1","name":"Centro Portugués de Fotografía","type":"spot","intensity":2,"isFriki":false,"icon":"1548","lat":41.1445837,"lng":-8.615825,"maps":"https://maps.google.com/?cid=6342238154465935313","price":"Gratis","time":"45-60 min","hours":"Mar-Vie 10-18h · Sáb-Dom 15-19h · Cerrado lunes","rating":"4.4 Google Maps","desc":"La antigua Cadeia da Relação (1767-1974): cárcel y tribunal de apelación. Planta baja para presos pobres y peligrosos, segunda planta mujeres, tercera para ricos que pagaban por comodidad. Camilo Castelo Branco estuvo preso aquí y escribió 'Amor de Perdição' en su celda. Funcionó hasta 1974, el mismo año que cayó la dictadura de Salazar. Hoy museo de fotografía con las celdas como salas.","tip":"La colección de cámaras espía camufladas (latas de Pepsi, paquetes de Marlboro) está en el 3er piso. Gratis y sin colas.","lines":"","name_en":"Portuguese Centre of Photography","desc_en":"The former Cadeia da Relação (1767-1974): a prison and court of appeal. Ground floor for poor and dangerous inmates, second floor for women, third for wealthy prisoners who could pay for comfort. Camilo Castelo Branco was imprisoned here and wrote 'Amor de Perdição' in his cell. It operated until 1974, the same year Salazar's dictatorship fell. Now a photography museum with the cells as exhibition rooms.","tip_en":"The spy camera collection — disguised in Pepsi cans and Marlboro packs — is on the 3rd floor. Free and no queues."},{"day":"d1","name":"Jardín de João Chagas","type":"spot","intensity":2,"isFriki":false,"icon":"1720","lat":41.1459873,"lng":-8.6167545,"maps":"https://maps.google.com/?cid=10388230323996556276","price":"Gratis","time":"15 min","hours":"Diario 8-21h (verano hasta 22h)","rating":"4.3 Google Maps","desc":"Jardín con plátanos centenarios y esculturas de arte contemporáneo instaladas permanentemente. El árbol más antiguo tiene más de 200 años. Rodea el Centro Português de Fotografia — la antigua cárcel.","tip":"Buena pausa entre el núcleo Clérigos y el paseo hacia Bombarda. Bancos a la sombra.","lines":"","name_en":"João Chagas Garden","desc_en":"A garden with century-old plane trees and permanently installed contemporary sculptures. The oldest tree is over 200 years old. It surrounds the Centro Português de Fotografia — the former prison.","tip_en":"A good break between the Clérigos core and the walk towards Bombarda. Shaded benches."},{"day":"d1","name":"Mirador Bandeirinha da Saúde","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1444187,"lng":-8.6220592,"maps":"https://maps.google.com/?cid=9133350098853005713","price":"Gratis","time":"15 min","hours":"24h","rating":"","desc":"Mirador elevado sobre el Duero con vista hacia la desembocadura en el Atlántico. Menos concurrido que los miradores del centro. Mejor al atardecer con la luz sobre el río.","tip":"Punto de transición entre el centro y el paseo a la Foz. Desde aquí arranca el paseo por la orilla hacia Passeio Alegre — unos 4 km.","lines":"","name_en":"Saúde Viewpoint","desc_en":"An elevated viewpoint over the Douro with views towards the Atlantic estuary. Less crowded than the city centre lookouts. Best at sunset with the light on the river.","tip_en":"The transition point between the centre and the walk to Foz. From here the riverside path to Passeio Alegre starts — about 4 km."},{"day":"d1","name":"Alfândega — parada del eléctrico","type":"transport","intensity":2,"isFriki":false,"icon":"1533","lat":41.1438776,"lng":-8.6220817,"maps":"https://maps.google.com/?cid=6051000684393878149","price":"","time":"","hours":"","rating":"","desc":"📍 Passeio Alegre (terminal) está a 4 km hacia el oeste siguiendo el río.","tip":"El tranvía sale de Infante lleno de turistas — cuando llega a Alfândega no siempre hay sitio. Si no entra, esperar el siguiente (20 min) o ir caminando.","lines":"Línea 1","name_en":"Alfândega — tram stop","desc_en":"📍 Passeio Alegre (terminus) is 4 km west, following the river.\n🔗 Connections from Alfândega:\n➡️ Tram to Foz: Passeio Alegre (4 stops, ~10 min)\n⬅️ On foot along the riverside path: Passeio Alegre (4 km, ~50 min, just as nice)","tip_en":"The tram leaves Infante packed with tourists — it's often full by the time it reaches Alfândega. If there's no space, wait for the next one (20 min) or walk."},{"day":"d1","name":"Passeio Alegre — terminal del eléctrico","type":"transport","intensity":2,"isFriki":false,"icon":"1533","lat":41.1476856,"lng":-8.6676701,"maps":"https://maps.google.com/?cid=16732861237684870512","price":"","time":"","hours":"","rating":"","desc":"📍 Jardín histórico en la desembocadura del Duero. Las olas del Atlántico rompen en la costa rocosa a pocos metros. Terminar el día aquí viendo el atardecer antes de coger el tranvía de vuelta.","tip":"Desde el terminal siempre hay sitio — cola mínima comparada con la de Infante.","lines":"Línea 1","name_en":"Passeio Alegre — tram terminal","desc_en":"📍 A historic garden at the mouth of the Douro. Atlantic waves break on the rocky shore just metres away. End the day here watching the sunset before catching the tram back.\n🔗 Connections from Passeio Alegre:\n➡️ Tram to city centre: Infante (13 stops, ~23 min)\n🚌 Bus 500: Praça da Liberdade (20 min, faster alternative)","tip_en":"The terminus always has space — minimal queue compared to Infante."},{"day":"d1","name":"Praia do Carneiro","type":"spot","intensity":2,"isFriki":false,"icon":"1521","lat":41.1486625,"lng":-8.6759133,"maps":"https://maps.google.com/?cid=1808027037272104737","price":"Gratis","time":"30-45 min","hours":"24h","rating":"4.5 Google Maps","desc":"Playa urbana en la desembocadura del Duero. En mayo el agua está fría pero el paseo marítimo, el faro y las olas del Atlántico rompiendo en las rocas al atardecer son el punto fotográfico. El tramo de costa desde aquí hacia el norte tiene pocas playas en toda Portugal del norte.","tip":"Último punto del día — cenar en los restaurantes de la Foz que dan al río antes de volver al centro (bus 500 directo).","lines":"","name_en":"Carneiro Beach","desc_en":"An urban beach at the mouth of the Douro. In May the water is cold, but the seafront walk, the lighthouse and the Atlantic waves breaking on the rocks at sunset make it worth the trip.","tip_en":"Last stop of the day — have dinner at the Foz riverside restaurants before heading back to the centre (Bus 500 direct)."},{"day":"d2","name":"Rua das Flores","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.144418,"lng":-8.6128125,"maps":"https://maps.google.com/?q=R.+das+Flores,+Porto,+Portugal&ftid=0xd2464e3eec3e963:0x4d9777c324b29cc3","price":"Gratis","time":"20-30 min · paseo","hours":"24h · Comercios 10-19h","rating":"4.5 Google Maps","desc":"Calle del centro histórico con mayor densidad de azulejos en las fachadas. La arquitectura civil del XVIII y XIX en distintos estados de conservación. Mejor fotografiarla a primera hora de la mañana antes de que abran los comercios.","tip":"Entrar por el extremo norte (junto a São Bento) y avanzar hacia el sur hacia la Ribeira. A las 9h solo están los baristas y los locales.","lines":"","name_en":"Rua das Flores (Flowers Street)","desc_en":"The street in the historic centre with the highest density of tiled facades. Civil architecture from the 18th and 19th centuries in various states of conservation. Best photographed early in the morning before the shops open.","tip_en":"Enter from the northern end (near São Bento) and head south towards the Ribeira. At 9:00 it's just baristas and locals."},{"day":"d2","name":"Largo da Pena Ventosa","type":"spot","intensity":2,"isFriki":false,"icon":"1580","lat":41.1427648,"lng":-8.6130808,"maps":"https://maps.google.com/?q=Largo+da+Pena+Ventosa,+4000+Porto,+Portugal&ftid=0xd2464e10b79eb8b:0x7a37c19ba75371ef","price":"Gratis","time":"10 min","hours":"24h","rating":"","desc":"Plaza pequeña en el barrio de la Sé: calles estrechas del barrio más antiguo de Oporto. Las fachadas con azulejos desprendidos, la ropa tendida entre ventanas y la vida local sin turismo son la atmósfera.","tip":"El barrio de la Sé es el Oporto sin restaurar — más auténtico y más incómodo que la Ribeira. Cuidado con el pavimento mojado.","lines":"","name_en":"Pena Ventosa Square","desc_en":"A small square in the Sé neighbourhood: narrow streets of Porto's oldest district. Crumbling tiled facades, laundry hanging between windows and local life without tourists — that's the atmosphere.","tip_en":"The Sé district is unrestored Porto — more authentic and more uncomfortable than the Ribeira. Watch out for wet cobblestones."},{"day":"d2","name":"Mirador de la Rua das Aldas","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1424459,"lng":-8.6125828,"maps":"https://maps.google.com/?cid=8844916121839161061","price":"Gratis","time":"10 min","hours":"24h","rating":"","desc":"Mirador menos conocido sobre el Duero y la Ribeira desde el barrio de la Sé. La vista incluye las bodegas de Vila Nova de Gaia al fondo. Sin la saturación del Mirador da Vitória.","tip":"Subir 5 minutos por la Rua das Aldas desde la Ribeira para una perspectiva diferente sin colas.","lines":"","name_en":"Aldas Street Viewpoint","desc_en":"A lesser-known viewpoint over the Douro and the Ribeira from the Sé neighbourhood. The view includes the Vila Nova de Gaia wine lodges in the background. Without the crowds of Mirador da Vitória.","tip_en":"Walk 5 minutes up Rua das Aldas from the Ribeira for a different angle with no queues."},{"day":"d2","name":"Catedral de Oporto","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1428531,"lng":-8.6111165,"maps":"https://maps.google.com/?cid=5340368308542978025","price":"Gratis exterior · Claustro 3€","time":"45-60 min","hours":"Lun-Sáb 9-18:30h · Dom 9-12:30h y 14:30-18:30h","rating":"4.5 Google Maps","desc":"Catedral románica del siglo XII con el claustro gótico del XIV cubierto de azulejos del siglo XVIII que narran Las Metamorfosis de Ovidio. La terraza de la catedral tiene la mejor vista del barrio de la Sé mirando hacia el río. El claustro vale los 3€ — los azulejos son de calidad excepcional.","tip":"Llegar antes de las 10h para el claustro sin grupos. La vista desde la terraza es gratuita.","lines":"","name_en":"Porto Cathedral","desc_en":"A 12th-century Romanesque cathedral with a 14th-century Gothic cloister covered in 18th-century tiles depicting Ovid's Metamorphoses. The cathedral terrace has the best view of the Sé neighbourhood towards the river. The cloister is worth €3 — the tiles are exceptionally well executed.","tip_en":"Arrive before 10:00 for the cloister without tour groups. The terrace view is free."},{"day":"d2","name":"Escadas do Codeçal","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.141952,"lng":-8.6097886,"maps":"https://maps.google.com/?q=Escadas+do+Code%C3%A7al,+4000+Porto,+Portugal&ftid=0xd2464e6d7641785:0x4db9e468a78ad658","price":"Gratis","time":"10-15 min · bajada","hours":"24h","rating":"4.5 Google Maps","desc":"Escalera medieval con casas de azulejo a ambos lados bajando desde la Sé hacia la Ribeira. El tramo más fotografiado del barrio más antiguo de Oporto. Una de las rutas de bajada con más carácter al río.","tip":"La luz de la mañana ilumina la escalera desde el este. Bajar despacio — el pavimento mojado resbala.","lines":"","name_en":"Codeçal Stairs","desc_en":"A medieval stairway with tiled houses on both sides, descending from the Sé towards the Ribeira. The most photographed stretch of Porto's oldest neighbourhood. One of the most characterful ways down to the river.","tip_en":"Morning light hits the stairway from the east. Take it slow — wet cobblestones are slippery."},{"day":"d2","name":"Puente Don Luis I — nivel superior","type":"spot","intensity":1,"isFriki":false,"icon":"1528","lat":41.1399589,"lng":-8.6094485,"maps":"https://maps.google.com/?cid=14004858726612560555","price":"Gratis","time":"15-20 min · cruce","hours":"24h","rating":"4.7 Google Maps","desc":"El puente de hierro de 1886 diseñado por el colaborador de Gustave Eiffel, Téophile Seyrig. El nivel superior (45 metros sobre el río) es para peatones y metro. La vista sobre el Duero desde el centro del puente en ambas direcciones es la panorámica más completa de la ciudad.","tip":"Cruzar a pie hacia Gaia por el nivel superior. Volver por el nivel inferior (8 metros) al terminar en Gaia — diferente experiencia del mismo puente.","lines":"","name_en":"Dom Luís I Bridge — upper level","desc_en":"An 1886 iron bridge designed by Théophile Seyrig, a collaborator of Gustave Eiffel. The upper level (45 metres above the river) is for pedestrians and metro. The view over the Douro from the centre of the bridge in both directions is the most complete panorama of the city.","tip_en":"Walk across to Gaia on the upper level. Return via the lower level (8 metres) after finishing in Gaia — a completely different experience of the same bridge."},{"day":"d2","name":"Monasterio de la Serra do Pilar — mirador","type":"spot","intensity":1,"isFriki":false,"icon":"1706","lat":41.138298,"lng":-8.6075262,"maps":"https://maps.google.com/?cid=12353973913943855267","price":"Exterior gratis · Interior 3€","time":"30-45 min","hours":"Exterior siempre · Visitas Mar-Sáb 10-17h","rating":"4.7 Google Maps","desc":"La rotonda circular del monasterio agustino del siglo XVI es una rareza arquitectónica: las dos plantas son circulares completas, iglesia y claustro. Las vistas desde la explanada sobre la Ribeira y el Puente Don Luis I son la mejor perspectiva opuesta a la del Mirador da Vitória.","tip":"La explanada es el mejor mirador de Oporto para fotografiar el puente con la Ribeira al fondo. Sin cola, sin precio.","lines":"","name_en":"Serra do Pilar Monastery & Viewpoint","desc_en":"The circular rotunda of this 16th-century Augustinian monastery is an architectural rarity: both floors — church and cloister — are fully circular. The views from the esplanade over the Ribeira and the Dom Luís I Bridge are the best opposite angle to the Mirador da Vitória.","tip_en":"The esplanade is Porto's best viewpoint for photographing the bridge with the Ribeira below. No queue, no charge."},{"day":"d2","name":"Jardim do Morro — mirador","type":"spot","intensity":2,"isFriki":false,"icon":"1720","lat":41.1371459,"lng":-8.6092935,"maps":"https://maps.google.com/?cid=2970628053487203559","price":"Gratis","time":"20 min","hours":"24h","rating":"4.6 Google Maps","desc":"El jardín en la ladera de Gaia con vistas directas a la Ribeira. Junto al Monasterio. Mejor al atardecer cuando la luz cae sobre las fachadas de Oporto.","tip":"Aquí arranca el Teleférico de Gaia — si se quiere bajar al nivel del río sin andar.","lines":"","name_en":"Morro Garden Viewpoint","desc_en":"The garden on the Gaia hillside with direct views over the Ribeira. Next to the Monastery. Best at sunset when the light falls on Porto's facades.","tip_en":"This is where the Gaia cable car starts — if you'd rather descend to the river level without walking."},{"day":"d2","name":"Teleférico de Gaia","type":"spot","intensity":2,"isFriki":false,"icon":"1586","lat":41.138002,"lng":-8.6095865,"maps":"https://maps.google.com/?cid=15631493604424031883","price":"6€ ida · 9€ ida y vuelta","time":"5 min · trayecto","hours":"Diario 10-20h (may-sep hasta 22h)","rating":"4.4 Google Maps","desc":"El teleférico baja desde la explanada del Jardim do Morro hasta el borde del río en Gaia en 5 minutos, pasando sobre las bodegas de vino de Oporto. Las vistas sobre el Duero y el puente durante el descenso son únicas.","tip":"Tomar solo de bajada (6€) — subir andando si hace buen tiempo. Evita la bajada a pie por la cuesta empinada. El trayecto de vuelta desde el río es a pie por el nivel inferior del puente.","lines":"","name_en":"Gaia Cable Car","desc_en":"The cable car descends from the Jardim do Morro esplanade to the Gaia riverside in 5 minutes, passing directly over Porto's wine lodges. The views over the Douro and the bridge during the descent are unique.","tip_en":"Take it one way down (€6) — walk back up if the weather is good. Avoids the steep downhill on foot."},{"day":"d2","name":"Vila Nova de Gaia — vistas, bodegas y paseo","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1379278,"lng":-8.6123656,"maps":"https://maps.google.com/?cid=7029323185457981040","price":"Gratis (bodegas aparte)","time":"30 min · orientación general","hours":"24h","rating":"4.5 Google Maps","desc":"La orilla sur del Duero: las bodegas de vino de Oporto se alinean desde el puente hacia el oeste. El nombre 'Vila Nova de Gaia' en los laterales de las bodegas (Sandeman, Graham's, Taylor's, Ramos Pinto) es el skyline reconocible de la ciudad desde la Ribeira. Cata en las bodegas: ⏱ 1-1.5h 💶 15-25€ según bodega y cata 🕐 Diario 10-18h · Reservar con antelación en temporada alta ⭐ 4.6 Google Maps (Graham's) · 4.5 (Sandeman) · 4.7 (Taylor's) Las bodegas principales con cata en Vila Nova de Gaia: Graham's (1820), Sandeman (1790), Taylor's (1692). Todas ofrecen visita guiada por la bodega histórica con cata de 2-3 vinos incluida. El vino de Oporto se produce en el Douro pero envejece aquí, en bodegas de piedra que mantienen temperatura constante.","tip":"Reservar online la cata básica (la más corta). Graham's tiene las mejores vistas desde su terraza. Taylor's tiene el tour más completo. Sandeman es la más conocida pero la menos auténtica de las tres.","lines":"","name_en":"Vila Nova de Gaia — views, wineries & riverside walk","desc_en":"The south bank of the Douro: Porto's wine lodges line up from the bridge westward. The 'Vila Nova de Gaia' signs on the lodge walls (Sandeman, Graham's, Taylor's, Ramos Pinto) form the city's recognisable skyline as seen from the Ribeira.","tip_en":"This is where to do the Port wine tasting. The riverside walk from the cable car to the lodges is a 5-minute stroll."},{"day":"d2","name":"Mitad de Conejo (instalación Gaia)","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1368792,"lng":-8.6150485,"maps":"https://maps.google.com/?cid=13195712903662451373","price":"Gratis","time":"5 min","hours":"24h","rating":"4.1 Google Maps","desc":"Escultura pública en Vila Nova de Gaia: un conejo gigante cortado por la mitad, instalado en el paseo del río. Arte público de impacto visual inmediato en un contexto inesperado. El nombre lo dice todo.","tip":"En el paseo del río entre las bodegas y el puente. Imposible de perder.","lines":"","name_en":"Half Rabbit (public art installation)","desc_en":"Public sculpture in Vila Nova de Gaia: a giant rabbit cut in half, installed on the riverside promenade. Immediate visual impact in an unexpected setting. The name says it all.","tip_en":"On the riverside walk between the wine lodges and the bridge. Impossible to miss."},{"day":"d2","name":"Puente Don Luis I — nivel inferior","type":"spot","intensity":2,"isFriki":false,"icon":"1528","lat":41.1393428,"lng":-8.6092769,"maps":"https://maps.google.com/?cid=14004858726612560555","price":"","time":"","hours":"","rating":"","desc":"Cruzar de vuelta hacia Oporto por el nivel inferior — diferente perspectiva del mismo puente. Más cerca del agua, más íntimo que los 45 metros del nivel superior. El nivel inferior es compartido con el tráfico rodado pero tiene acera peatonal.","tip":"Volver a Oporto por aquí después de terminar en Gaia — el contraste con la altura del nivel superior es inmediato.","lines":"Nivel inferior · peatonal","name_en":"Dom Luís I Bridge — lower level","desc_en":"Cross back to Porto on the lower level — a completely different perspective of the same bridge. Closer to the water, more intimate than the 45-metre upper level. The lower level is shared with road traffic but has a pedestrian pavement.\n","tip_en":"Return to Porto this way after finishing in Gaia — the contrast with the upper level's height is immediate."},{"day":"d2","name":"Cais da Ribeira","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.140665,"lng":-8.611057,"maps":"https://maps.google.com/?q=Cais+da+Ribeira,+4000+Porto,+Portugal&ftid=0xd2464e0c8cbfb51:0xdffdd074ee6ba7be","price":"Gratis","time":"20-30 min · paseo","hours":"24h","rating":"4.5 Google Maps","desc":"El frente del río: casas de cuatro y cinco pisos con fachadas de azulejos en diferentes estados de deterioro sobre la Ribeira. El tramo entre el Puente Don Luis I y el Puente de la Arrábida al atardecer tiene el color que aparece en todas las fotos de Oporto.","tip":"Caminar por el Cais mirando hacia Gaia — la perspectiva inversa (desde el río hacia las casas) es la más fotogénica. Evitar los restaurantes del frente del río — caros y para turistas.","lines":"","name_en":"Ribeira Waterfront","desc_en":"The riverside front: four and five-storey buildings with tiled facades in various states of decay above the Ribeira. The stretch between the Dom Luís I Bridge and the Arrábida Bridge at sunset has the colour that appears in every photo of Porto.","tip_en":"Walk along the Cais looking towards Gaia — the reverse perspective (from the river towards the houses) is the most photogenic. Avoid the riverside restaurants — expensive and aimed at tourists."},{"day":"d2","name":"Rua do Barredo","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.14103,"lng":-8.6122548,"maps":"https://maps.google.com/?q=R.+do+Barredo,+4000+Porto,+Portugal&ftid=0xd2464e0e62d7d93:0x3a9d01bafee99523","price":"Gratis","time":"10 min · callejeo","hours":"24h","rating":"","desc":"Una de las calles más estrechas y verticales entre la Ribeira y la Sé: escaleras, azulejos deteriorados, ropa tendida, olor a humedad. El barrio que los propios portuenses llaman 'Oporto de verdad'. Sin reformas masivas recientes.","tip":"La pendiente sube hacia la Sé — subir hasta el punto más alto para ver la diferencia de escala entre la calle y el río.","lines":"","name_en":"Barredo Street","desc_en":"One of the narrowest and steepest streets between the Ribeira and the Sé: stairs, crumbling tiles, laundry hanging out, smell of damp. The neighbourhood that Porto's own residents call 'the real Porto'. No major renovation in recent years.","tip_en":"The slope climbs towards the Sé — go up to the highest point to see the difference in scale between the street and the river."},{"day":"d2","name":"Rua dos Mercadores","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1415164,"lng":-8.6130286,"maps":"https://maps.google.com/?q=R.+dos+Mercadores,+Porto,+Portugal&ftid=0xd2464e100a42cd5:0x3a6732e0b0184423","price":"Gratis","time":"10 min · callejeo","hours":"24h","rating":"","desc":"Paralela a Rua do Barredo: escaleras, azulejos deteriorados, ropa tendida entre ventanas. El barrio más antiguo de Oporto sin la gentrificación de la Ribeira baja.","tip":"Recorrer ambas calles en paralelo (Barredo y Mercadores) por su contraste con el paseo del río, a 200 metros de distancia.","lines":"","name_en":"Mercadores Street","desc_en":"Running parallel to Rua do Barredo: stairs, crumbling tiles, laundry hanging between windows. Porto's oldest neighbourhood without the gentrification of the lower Ribeira.","tip_en":"Walk both streets in parallel (Barredo and Mercadores) for the contrast with the riverside promenade just 200 metres away."},{"day":"d2","name":"Iglesia de San Francisco","type":"spot","intensity":1,"isFriki":false,"icon":"1706","lat":41.1410065,"lng":-8.616031,"maps":"https://maps.google.com/?cid=14620361844910888300","price":"9€","time":"45-60 min","hours":"Diario 9-18h (verano hasta 19h)","rating":"4.7 Google Maps","desc":"El interior gótico cubierto con 400 kg de pan de oro brasileño del siglo XVIII — el 'árbol de Jesé' es la talla más elaborada de Portugal. Las catacumbas: los suelos de cristal muestran la acumulación de huesos de los frailes enterrados en capas sucesivas. Los nichos laterales tienen lápidas; quienes no tenían dinero para nicho van bajo el suelo de madera.","tip":"No saltarse las catacumbas — están incluidas en la entrada y casi nadie baja. El contraste con el oro del interior es llamativo.","lines":"","name_en":"São Francisco Church","desc_en":"A Gothic interior covered with 400 kg of 18th-century Brazilian gold leaf — the 'Tree of Jesse' is the most elaborate carved piece in Portugal. The catacombs: glass floors reveal layers of friars' bones accumulated over centuries. The side niches have headstones; those who couldn't afford a niche go under the wooden floorboards.","tip_en":"Don't skip the catacombs — they're included in the ticket price and almost nobody goes down. The contrast with the gold interior is striking."},{"day":"d2","name":"Palacio de la Bolsa de Oporto","type":"spot","intensity":2,"isFriki":false,"icon":"1548","lat":41.1413772,"lng":-8.6156725,"maps":"https://maps.google.com/?cid=7580193080231123281","price":"13.50€ · Solo visita guiada","time":"30-45 min","hours":"Diario 9-18:30h · Tours cada 30 min","rating":"4.6 Google Maps","desc":"Sala árabe del siglo XIX: paredes y techo cubiertos de estuco dorado y policromado en estilo morisco. Inscripciones en árabe en las puertas de un edificio neoclásico de comerciantes que nunca habían estado en Marruecos. El contraste entre el exterior sobrio y el interior es el dato.","tip":"Solo accesible con tour guiado de 30 min — apuntarse al llegar y esperar el siguiente. Vale la pena exclusivamente por la Sala Árabe.","lines":"","name_en":"Porto Stock Exchange Palace","desc_en":"A 19th-century Arab Room: walls and ceiling covered in gilded and polychrome Moorish-style stucco. Arabic inscriptions on the doors of a neoclassical building owned by merchants who had never been to Morocco. The contrast between the sober exterior and the interior is the whole point.","tip_en":"Only accessible on a 30-min guided tour — sign up on arrival and wait for the next one. Worth it exclusively for the Arab Room."},{"day":"d2","name":"Mirador de la Victoria","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.1430829,"lng":-8.6158324,"maps":"https://maps.google.com/?cid=37004265120730533","price":"Gratis","time":"15-20 min","hours":"24h","rating":"4.6 Google Maps","desc":"El mejor mirador del centro sobre el Puente Don Luis I y el río Duero. Técnicamente privado (terraza de un edificio) pero lo mantienen abierto a turistas. La perspectiva sobre el nivel superior del puente y las bodegas de Gaia al fondo es la fotografía de Oporto más reconocible.","tip":"La foto clásica de Oporto se toma desde aquí. Mejor al atardecer — la luz del oeste ilumina el puente y las bodegas.","lines":"","name_en":"Victoria Viewpoint","desc_en":"The best city-centre viewpoint over the Dom Luís I Bridge and the Douro. Technically private (a building's rooftop terrace) but kept open to visitors. The view over the bridge's upper level with the Gaia wine lodges behind is Porto's most recognised photograph.","tip_en":"Porto's classic shot is taken from here. Best at sunset — the western light hits the bridge and the lodges."},{"day":"d2","name":"Passeio das Virtudes","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1441145,"lng":-8.6183358,"maps":"https://maps.google.com/?q=Passeio+das+Virtudes,+4050+Porto,+Portugal&ftid=0xd24651dd0dd177f:0xe0dddb2eca0b8d7a","price":"Gratis","time":"20-30 min","hours":"24h","rating":"4.5 Google Maps","desc":"Mirador sobre el Duero utilizado por los locales: estudiantes universitarios, parejas, vecinos con perros. La vista al río es lateral — no la vista frontal del Mirador da Vitória — pero la atmósfera local es irreproducible. Al atardecer hay músicos.","tip":"Cierre perfecto del día — traer algo de beber y sentarse a ver el río. Los puestos del paseo tienen vino y cerveza desde 2€.","lines":"","name_en":"Virtudes Promenade","desc_en":"A riverside lookout used by locals: university students, couples, neighbours with dogs. The river view is lateral — not the frontal view of Mirador da Vitória — but the local atmosphere is irreplaceable. Street musicians appear at sunset.","tip_en":"The perfect end to the day — bring something to drink and sit by the river. The stalls along the promenade sell wine and beer from €2."},{"day":"d3","name":"Santuario da Penha","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.4318214,"lng":-8.2700348,"maps":"https://maps.google.com/?cid=2936429967481150862","price":"Teleférico: 5€ ida y vuelta · Coche: gratis","time":"45-60 min","hours":"Diario 8-18h (teleférico variable)","rating":"4.6 Google Maps","desc":"Monte de 613m cubierto de pinos con formaciones de granito gigantes entre las que se apoya la iglesia. El teleférico parte desde el centro de Guimarães. Las vistas sobre el valle y la ciudad medieval son el punto fotográfico principal.","tip":"Combinar con el Castillo a pie — ambos están en el mismo monte. Subir en coche si se tiene — deja tiempo para el centro medieval.","lines":""},{"day":"d3","name":"Castillo de Guimarães","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.4478935,"lng":-8.2903191,"maps":"https://maps.google.com/?cid=18224263877818231865","price":"2€","time":"30-45 min","hours":"Diario 10-18h","rating":"4.5 Google Maps","desc":"Castillo del siglo X donde nació Afonso Henriques, primer rey de Portugal en 1109. Las almenas medievales y la torre del homenaje están en buen estado. Mejor fotografiarlo desde la cuesta del palacio de los Duques — la perspectiva desde abajo es más potente que desde dentro.","tip":"La subida a las almenas vale los 2€. Vista directa al Paço dos Duques y al centro medieval.","lines":"","name_en":"Guimarães Castle","desc_en":"A 10th-century castle where Afonso Henriques — Portugal's first king — was born in 1109. The medieval battlements and keep are well preserved. Better photographed from the slope below the Dukes' Palace — the view from below is more powerful than from inside.","tip_en":"Climbing the battlements is worth €2. Direct view over the Paço dos Duques and the medieval centre."},{"day":"d3","name":"Paço dos Duques de Bragança","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.4465409,"lng":-8.2911855,"maps":"https://maps.google.com/?cid=6685231265598700652","price":"5€","time":"45-60 min","hours":"Diario 9:30-18h","rating":"4.5 Google Maps","desc":"Palacio del siglo XV con torres cilíndricas y chimeneas de ladrillo que recuerdan a Borgoña. Restaurado radicalmente en los años 40 por Salazar como símbolo de la identidad nacional. El contraste entre el exterior medieval y el interior restaurado con criterio ideológico es el dato.","tip":"Entrar solo si el tiempo lo permite — el exterior y el contexto histórico son lo más interesante.","lines":"","name_en":"Palace of the Dukes of Braganza","desc_en":"A 15th-century palace with cylindrical towers and brick chimneys reminiscent of Burgundy. Radically restored in the 1940s by Salazar as a symbol of national identity. The contrast between the medieval exterior and the ideologically motivated restoration inside is the main point of interest.","tip_en":"Go inside only if time allows — the exterior and historical context are the most interesting part."},{"day":"d3","name":"Rua de Santa Maria","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.4441176,"lng":-8.2927654,"maps":"https://maps.google.com/?q=R.+de+Santa+Maria,+4810+Guimar%C3%A3es,+Portugal&ftid=0xd24efe981de5d2d:0xc7a1c9b2cdfbf4a5","price":"Gratis","time":"15-20 min","hours":"24h","rating":"4.6 Google Maps","desc":"La calle medieval más fotografiada de Guimarães: casas de granito del siglo XIV con balcones de madera. El pavimento empedrado, la estrechez y la escala humana la hacen una de las calles medievales mejor conservadas del norte de Portugal.","tip":"Mejor a primera hora de la mañana, antes de los grupos de turistas. Desayunar en una de las panaderías del principio de la calle.","lines":"","name_en":"Santa Maria Street","desc_en":"The most photographed medieval street in Guimarães: 14th-century granite houses with wooden balconies. The cobbled surface, the narrowness and the human scale make it one of the best-preserved medieval streets in northern Portugal.","tip_en":"Best first thing in the morning, before the tour groups. Have breakfast at one of the bakeries at the top of the street."},{"day":"d3","name":"Praça de São Tiago","type":"spot","intensity":2,"isFriki":false,"icon":"1580","lat":41.4434742,"lng":-8.2932111,"maps":"https://maps.google.com/?q=Pra%C3%A7a+de+S%C3%A3o+Tiago,+4810+Guimar%C3%A3es,+Portugal&ftid=0xd24efe9903fb361:0x5ede599341852a50","price":"Gratis","time":"15 min","hours":"24h","rating":"4.7 Google Maps","desc":"La plaza románica más pequeña y auténtica del centro: adoquines medievales, casas de granito del XIII, la iglesia de São Miguel da Castelo donde bautizaron a Afonso Henriques. El ambiente al mediodía con los locales tomando café es más genuino que el turístico Largo da Oliveira.","tip":"La más fotogénica del centro medieval. Los cafés con sillas de madera en el exterior.","lines":"","name_en":"São Tiago Square","desc_en":"The smallest and most authentic Romanesque square in the centre: medieval cobblestones, 13th-century granite houses, the church of São Miguel da Castelo where Afonso Henriques was baptised. The midday atmosphere with locals having coffee is more genuine than the tourist-heavy Largo da Oliveira.","tip_en":"The most photogenic square in the medieval centre. Cafés with wooden chairs outside."},{"day":"d3","name":"Largo da Oliveira + Padrão do Salado","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.442849,"lng":-8.2927935,"maps":"https://maps.google.com/?cid=10504298911253498425","price":"Gratis","time":"15 min","hours":"24h","rating":"4.5 Google Maps","desc":"El Padrão do Salado es un monumento gótico del siglo XIV levantado en 1340 para conmemorar la batalla donde Portugal y Castilla derrotaron al sultán de Marruecos. El olivo del centro de la plaza es otro de los supervivientes medievales.","tip":"El edificio de los Paços do Concelho (ayuntamiento medieval) detrás del Padrão tiene soportales del siglo XIV bien conservados.","lines":"","name_en":"Oliveira Square + Battle of Salado Monument","desc_en":"The Padrão do Salado is a 14th-century Gothic monument erected in 1340 to commemorate the battle where Portugal and Castile defeated the Sultan of Morocco. The olive tree in the centre of the square is another medieval survivor.","tip_en":"The Paços do Concelho building (medieval town hall) behind the Padrão has well-preserved 14th-century arcades."},{"day":"d3","name":"Largo da República do Brasil","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.4418299,"lng":-8.2908218,"maps":"https://maps.google.com/?q=Largo+da+Rep%C3%BAblica+do+Brasil,+4810+Guimar%C3%A3es,+Portugal&ftid=0xd24efc1d936fc6f:0xf9fc86877281027","price":"Gratis","time":"10 min","hours":"24h","rating":"","desc":"Plaza modernista con el edificio de Correos y el jardín de los Pombinhos. El contraste entre el estilo ecléctico de principios del XX y el granito medieval del entorno es más llamativo de lo que sugiere el nombre.","tip":"Punto de referencia para salir hacia el coche y continuar a Braga.","lines":"","name_en":"República do Brasil Square","desc_en":"A modernist square with the Post Office building and the Pombinhos garden. The contrast between the early-20th-century eclectic style and the surrounding medieval granite is more striking than the name suggests.","tip_en":"Reference point for getting back to the car and heading to Braga."},{"day":"d3","name":"Igreja de Santos Passos","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.4409037,"lng":-8.2897289,"maps":"https://maps.google.com/?cid=2305654459190165344","price":"Gratis exterior","time":"10 min · exterior","hours":"24h exterior","rating":"4.6 Google Maps","desc":"Iglesia barroca del siglo XVIII con fachada de granito y la escalinata en perspectiva que enmarca la calle. Uno de los edificios más fotogénicos de Guimarães desde el exterior.","tip":"Solo exterior si el tiempo apremia. La escalinata es el punto fotográfico.","lines":"","name_en":"Santos Passos Church","desc_en":"An 18th-century baroque church with a granite facade and a stepped perspective stairway framing the street. One of Guimarães' most photogenic buildings from the outside.","tip_en":"Exterior only if time is tight. The stairway is the photographic draw."},{"day":"d3","name":"Bom Jesus do Monte — escalinata barroca","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.5547347,"lng":-8.3770546,"maps":"https://maps.google.com/?cid=17143316056149061284","price":"Gratis · Funicular 2€ subida","time":"45-60 min","hours":"Diario · Funicular 8-20h","rating":"4.7 Google Maps","desc":"Escalinata barroca de 116 metros de altura con 581 peldaños en zigzag, fuentes y capillas en cada tramo. La perspectiva fotográfica desde abajo mirando hacia arriba es la imagen de Portugal más usada internacionalmente después de Lisboa. El funicular de 1882 sube en 3 minutos.","tip":"La foto desde abajo mirando hacia la cima es la toma clásica. Subir por la escalinata y bajar en funicular (o al revés). Parada en el camino desde Guimarães hacia Braga.","lines":"","name_en":"Bom Jesus do Monte — baroque staircase","desc_en":"A baroque stairway 116 metres tall with 581 zigzag steps, fountains and chapels at each landing. The photographic perspective from below looking up is the most internationally used image of Portugal after Lisbon. The 1882 funicular climbs in 3 minutes.","tip_en":"The shot from below looking towards the top is the classic take. Walk up the stairway and take the funicular down (or the reverse). Stop here on the way from Guimarães to Braga."},{"day":"d3","name":"Santuario de Nuestra Señora del Sameiro","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.5418253,"lng":-8.3698136,"maps":"https://maps.google.com/?cid=4198516768261585453","price":"Gratis","time":"20 min","hours":"Diario 8-18h","rating":"4.5 Google Maps","desc":"Basílica neoclásica en la cima de un monte a 566m. Las vistas sobre el valle del Minho y hacia Guimarães son de las mejores de la región. Menos visitado que el Bom Jesus aunque está más cerca de Braga.","tip":"Parada rápida antes de bajar al centro de Braga. Las vistas justifican los 10 minutos. Bajar las escaleras para ver las vistas al fondo y la magnitud de la localización.","lines":"","name_en":"Sameiro Sanctuary","desc_en":"A neoclassical basilica on a 566m hilltop. The views over the Minho valley and towards Guimarães are among the best in the region. Less visited than Bom Jesus though it's actually closer to Braga.","tip_en":"A quick stop before descending into Braga city centre. The views justify the 10 minutes. Walk down the steps to see the full extent of the view and the scale of the location."},{"day":"d3","name":"Casa do Raio","type":"spot","intensity":2,"isFriki":false,"icon":"1535","lat":41.5483836,"lng":-8.4225933,"maps":"https://maps.google.com/?cid=9445833874313419838","price":"Gratis exterior","time":"5-10 min · solo exterior","hours":"24h exterior","rating":"4.5 Google Maps","desc":"Palacete barroco del siglo XVIII cubierto de azulejos azules en la fachada — uno de los edificios civiles barrocos más fotogénicos del norte de Portugal. Actualmente es sede del Archivo Distrital. La fachada desde la calle no requiere más de 10 minutos.","tip":"La entrada al centro histórico de Braga. El azul de los azulejos a plena luz es muy potente.","lines":"","name_en":"Casa do Raio (baroque palace)","desc_en":"An 18th-century baroque palace covered in blue tiles on the facade — one of the most photogenic civic baroque buildings in northern Portugal. Currently home to the District Archive. The facade from the street takes no more than 10 minutes.","tip_en":"The entry point to Braga's historic centre. The blue tiles in full daylight are very striking."},{"day":"d3","name":"Centro histórico de Braga — eje principal","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.5488998,"lng":-8.4217243,"maps":"https://maps.google.com/?cid=13843427462156095665","price":"Gratis","time":"30-45 min · paseo","hours":"24h","rating":"4.5 Google Maps","desc":"El eje medieval de Braga: Rua do Souto y Rua Dom Diogo de Sousa. La ciudad es conocida como la 'Roma portuguesa' por la densidad de iglesias barrocas. El contraste entre la arquitectura eclesiástica del XVIII y las tiendas actuales tiene más carácter que Lisboa.","tip":"Recorrer el eje de norte a sur — la concentración de edificios barrocos aumenta hacia la Catedral.","lines":"","name_en":"Braga historic centre — main axis","desc_en":"Braga's medieval axis: Rua do Souto and Rua Dom Diogo de Sousa. The city is known as the 'Portuguese Rome' for its density of baroque churches. The contrast between the 18th-century ecclesiastical architecture and the current shops has more character than Lisbon's equivalent.","tip_en":"Walk the axis from north to south — the concentration of baroque buildings increases as you approach the Cathedral."},{"day":"d3","name":"Chafariz da Praça da República","type":"spot","intensity":2,"isFriki":false,"icon":"1599","lat":41.551394,"lng":-8.4230942,"maps":"https://maps.google.com/?cid=3708789883333170518","price":"Gratis","time":"15-20 min · plaza","hours":"24h","rating":"4.5 Google Maps","desc":"Fuente octogonal del XVIII en el centro de la plaza principal de Braga, rodeada de cafés con terraza. El ambiente de la plaza es el más vivo del centro histórico — los locales llevan generaciones sentándose aquí.","tip":"Mejor parada para un café antes de seguir al eje de iglesias. Los cafés de los soportales tienen la terraza más barata del centro.","lines":"","name_en":"República Square Fountain","desc_en":"An 18th-century octagonal fountain at the centre of Braga's main square, surrounded by terrace cafés. The square has the liveliest atmosphere in the historic centre — locals have been sitting here for generations.","tip_en":"Best stop for a coffee before heading to the church axis. The arcade cafés have the cheapest terrace in the centre."},{"day":"d3","name":"Jardim de Santa Bárbara","type":"spot","intensity":2,"isFriki":false,"icon":"1720","lat":41.5513604,"lng":-8.4259038,"maps":"https://maps.google.com/?cid=12066296484206617601","price":"Gratis","time":"15-20 min","hours":"Diario amanecer-anochecer","rating":"4.7 Google Maps","desc":"Jardín formal del siglo XVII junto al Palacio Episcopal: laberinto de boj recortado, fuentes y rosas. El fondo del palacio del arzobispo enmarca el jardín desde la calle. Una de las fotografías más pintorescas de Braga sin entrar a ningún edificio.","tip":"Las rosas están en su mejor momento en mayo. La foto clásica es desde la reja exterior con el palacio al fondo.","lines":"","name_en":"Santa Bárbara Garden","desc_en":"A formal 17th-century garden next to the Episcopal Palace: trimmed box hedge maze, fountains and roses. The archbishop's palace backdrop frames the garden from the street. One of Braga's most picturesque photographs without entering a single building.","tip_en":"The roses are at their best in May. The classic shot is from the exterior gate with the palace in the background."},{"day":"d3","name":"Palácio Episcopal Braga","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.5509529,"lng":-8.4264201,"maps":"https://maps.google.com/?cid=14195656666398389760","price":"Gratis exterior","time":"10 min · exterior","hours":"24h exterior","rating":"4.4 Google Maps","desc":"Edificio del siglo XIV ampliado en el XVII y XVIII: una de las residencias episcopales más grandes de Portugal. La fachada da al Jardim de Santa Bárbara.","tip":"Visitar junto al jardín — están físicamente pegados.","lines":"","name_en":"Braga Episcopal Palace","desc_en":"A 14th-century building extended in the 17th and 18th centuries: one of the largest episcopal residences in Portugal. The facade faces the Santa Bárbara Garden.","tip_en":"Visit alongside the garden — they are physically adjacent."},{"day":"d3","name":"Catedral de Braga","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.5499885,"lng":-8.4269012,"maps":"https://maps.google.com/?cid=9819622440147266897","price":"Exterior gratis · Interior 5€","time":"30-45 min","hours":"Diario 8:30-18:30h","rating":"4.6 Google Maps","desc":"La catedral más antigua de Portugal (iniciada en 1070, terminada en 1509). La fachada es una mezcla de románico, gótico, manuelino y barroco acumulados durante 500 años. El exterior es más interesante que el interior — rodear el edificio para ver todos los estilos estratificados.","tip":"El tesoro de la catedral tiene el cáliz de San Geraldo y los ornamentos medievales mejor conservados del norte de Portugal. Vale los 5€ si te interesan.","lines":"","name_en":"Braga Cathedral","desc_en":"Portugal's oldest cathedral (started 1070, completed 1509). The facade is a layered mix of Romanesque, Gothic, Manueline and Baroque accumulated over 500 years. The exterior is more interesting than the interior — walk around the whole building to see all the architectural styles stacked up.","tip_en":"The cathedral treasury holds Saint Gerald's chalice and the best-preserved medieval vestments in northern Portugal. Worth €5 if that interests you."},{"day":"d3","name":"Arco de la Puerta Nueva","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.5502644,"lng":-8.4293422,"maps":"https://maps.google.com/?cid=758412812942888317","price":"Gratis","time":"5 min","hours":"24h","rating":"4.5 Google Maps","desc":"Arco del siglo XVIII que marcaba la entrada a la ciudad amurallada medieval. Uno de los pocos restos de la muralla de Braga. La perspectiva fotográfica desde dentro del arco mirando a la calle es la habitual.","tip":"Punto de referencia para salir del centro y volver al coche hacia Oporto.","lines":"","name_en":"Porta Nova Arch","desc_en":"An 18th-century archway that marked the entrance to the medieval walled city. One of the few remaining sections of Braga's old walls. The standard photographic angle is from inside the arch looking out towards the street.","tip_en":"Reference point for leaving the centre and getting back to the car for the drive to Porto."},{"day":"d4","name":"Estação de São Bento","type":"spot","intensity":1,"isFriki":false,"icon":"1535","lat":41.1456094,"lng":-8.6103747,"maps":"https://maps.google.com/?cid=1060283895724401734","price":"Gratis","time":"20-30 min","hours":"Diario 8-23h (atrio siempre abierto)","rating":"4.8 Google Maps","desc":"Estación de tren de 1916 con 20.000 azulejos pintados a mano en el atrio central: batallas medievales, escenas rurales del norte de Portugal, la llegada del primer tren a Oporto. El contraste entre la función cotidiana (gente cogiendo trenes de cercanías) y la escala decorativa del atrio es el dato.","tip":"PRIMER PUNTO DEL DÍA — ir antes de las 9h. A partir de las 10h los grupos turísticos llenan el atrio. Los azulejos se ven mejor desde el fondo mirando hacia la entrada.","lines":"","name_en":"São Bento Railway Station","desc_en":"A 1916 train station with 20,000 hand-painted tiles in the central atrium: medieval battles, rural scenes from northern Portugal, the arrival of the first train in Porto. The contrast between the everyday function (people catching commuter trains) and the decorative scale of the atrium is the whole point.","tip_en":"FIRST STOP OF THE DAY — go before 9:00. Tour groups fill the atrium from 10:00 onwards. The tiles are best seen from the far end, looking back towards the entrance."},{"day":"d4","name":"Rua de 31 de Janeiro","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1461287,"lng":-8.6102151,"maps":"https://maps.google.com/?q=R.+de+31+de+Janeiro,+4000+Porto,+Portugal&ftid=0xd2464e444de7d1d:0x1b8363cfeef845f7","price":"Gratis","time":"10 min · paseo","hours":"24h","rating":"4.3 Google Maps","desc":"Calle que conecta São Bento con Bolhão: casas del siglo XIX con azulejos en diferentes estados de deterioro, pequeños comercios de toda la vida, sin la gentrificación de Rua das Flores.","tip":"El contraste con Rua das Flores (más restaurada, más turística) es llamativo siendo paralelas. Esta calle tiene más vida local.","lines":"","name_en":"Rua de 31 de Janeiro","desc_en":"The street connecting São Bento to Bolhão: 19th-century houses with tiles in various states of decay, old-school local shops, without the gentrification of Rua das Flores.","tip_en":"The contrast with Rua das Flores (more restored, more touristy) is striking given that they run parallel. This street has more local life."},{"day":"d4","name":"Iglesia de San Ildefonso — fachada 11.000 azulejos","type":"spot","intensity":2,"isFriki":false,"icon":"1706","lat":41.1460999,"lng":-8.6066989,"maps":"https://maps.google.com/?cid=2129444736023985607","price":"Gratis exterior · Interior 3€","time":"15-20 min","hours":"Lun-Vie 8-12:30h y 15-18:30h · Sáb 9-12:30h · Dom 10-12:30h y 15-18:30h","rating":"4.7 Google Maps","desc":"La fachada principal cubierta con 11.000 azulejos azules y blancos (1932) narrando escenas bíblicas y mitológicas. La Praça da Batalha delante fue un cementerio — los cuerpos siguen bajo la plaza peatonal.","tip":"La mejor perspectiva es desde el extremo opuesto de la Praça da Batalha — a unos 80 metros la fachada entera entra en el encuadre.","lines":"","name_en":"Santo Ildefonso Church — facade with 11,000 tiles","desc_en":"The main facade covered with 11,000 blue and white tiles (1932) depicting biblical and mythological scenes. The Praça da Batalha in front was a cemetery — the bodies are still under the pedestrian square.","tip_en":"The best perspective is from the far end of Praça da Batalha — at about 80 metres the entire facade fits in frame."},{"day":"d4","name":"Praça da Batalha — antiguo cementerio","type":"spot","intensity":2,"isFriki":false,"icon":"1580","lat":41.1454898,"lng":-8.6074304,"maps":"https://maps.google.com/?q=Pra%C3%A7a+da+Batalha,+4000-101+Porto,+Portugal&ftid=0xd2464e5c6ac3cb3:0xd8603d2ab38f90e1","price":"Gratis","time":"10 min","hours":"24h","rating":"4.2 Google Maps","desc":"La plaza más grande del centro fue un cementerio desde el reinado de Alfonso III hasta finales del siglo XIX. Las vallas de hierro frente a la iglesia marcan el perímetro del antiguo camposanto. Los cuerpos siguen bajo la plaza peatonal.","tip":"La imagen completa de San Ildefonso se ve mejor desde aquí. La historia del cementerio no está señalizada — la mayoría de visitantes no sabe que está caminando sobre él.","lines":"","name_en":"Batalha Square — former cemetery","desc_en":"The largest square in the centre was a cemetery from the reign of Alfonso III until the late 19th century. The iron railings in front of the church mark the perimeter of the old graveyard. The bodies are still under the pedestrian square.","tip_en":"The full image of São Ildefonso is best seen from here. The cemetery history is not signposted — most visitors don't know they're walking over it."},{"day":"d4","name":"Liberdade Square + McDonald's palacete","type":"spot","intensity":2,"isFriki":false,"icon":"1580","lat":41.1466469,"lng":-8.6115366,"maps":"https://maps.google.com/?q=Pra%C3%A7a+da+Liberdade,+4000+Porto,+Portugal&ftid=0xd2464e376a8629f:0x7400d25802357d1a","price":"Gratis · McDonald's precio estándar","time":"10-15 min","hours":"24h · McDonald's desde 8h","rating":"4.4 Google Maps","desc":"La Praça da Liberdade marca el inicio de la Avenida dos Aliados. El dato: el McDonald's ocupa un palacete neoclásico restaurado del siglo XIX — interior con mármoles, estucos y molduras doradas genuinamente incongruente. El café de McDonald's aquí tiene la sala más elegante de la cadena.","tip":"Entrar aunque sea a ver el interior — nadie lo obliga a pedir nada. El contraste es lo que vale.","lines":"","name_en":"Liberdade Square + McDonald's in a palace","desc_en":"Praça da Liberdade marks the start of Avenida dos Aliados. The fact: McDonald's occupies a restored 19th-century neoclassical palace — marble, stucco and gilded mouldings inside, genuinely incongruous. The coffee at this McDonald's is served in the most elegant room in the chain.","tip_en":"Go in just to see the interior — nobody is forcing you to order anything. The contrast is the whole point."},{"day":"d4","name":"Avenida dos Aliados","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1483096,"lng":-8.6108148,"maps":"https://maps.google.com/?q=Av.+dos+Aliados,+4000+Porto,+Portugal&ftid=0xd2464e35940fd8f:0x738dcce6546dd210","price":"Gratis","time":"15-20 min · paseo","hours":"24h","rating":"4.6 Google Maps","desc":"El eje central de Oporto: edificios eclécticos del siglo XX con el Ayuntamiento al fondo. La escala de la avenida, los edificios bancarios con fachadas de granito y la estatua del rey Dom João I en el centro.","tip":"Caminar de sur a norte para que el Ayuntamiento quede al fondo como destino visual. La perspectiva desde el centro de la avenida es la mejor.","lines":"","name_en":"Aliados Avenue","desc_en":"Porto's central axis: eclectic early-20th-century buildings with the City Hall at the far end. The scale of the avenue, the granite-faced bank buildings and the statue of King Dom João I at the centre.","tip_en":"Walk from south to north so the City Hall sits at the end as a visual destination. The perspective from the centre of the avenue is the best."},{"day":"d4","name":"Ayuntamiento de Oporto","type":"spot","intensity":2,"isFriki":false,"icon":"1548","lat":41.1499084,"lng":-8.6107023,"maps":"https://maps.google.com/?cid=6757098599217526905","price":"Gratis exterior","time":"10-15 min · exterior","hours":"24h exterior","rating":"4.4 Google Maps","desc":"Edificio neoclásico del siglo XIX en el extremo norte de los Aliados. La fachada con el reloj y el pórtico de columnas es la imagen oficial de Oporto que aparece en documentos turísticos. Mejor fotografiado desde el centro de la avenida en perspectiva.","tip":"La perspectiva desde 200 metros más abajo en los Aliados es mejor que desde delante del edificio.","lines":"","name_en":"Porto City Hall","desc_en":"A 19th-century neoclassical building at the northern end of the Aliados. The clock tower and columned portico are Porto's official tourist image. Best photographed from the middle of the avenue with perspective.","tip_en":"The view from 200 metres down the Aliados is better than from directly in front of the building."},{"day":"d4","name":"Mercado de Bolhão","type":"spot","intensity":2,"isFriki":false,"icon":"1684","lat":41.1493855,"lng":-8.6071175,"maps":"https://maps.google.com/?cid=17399132534812343529","price":"Gratis entrada · Productos variable","time":"30-45 min","hours":"Lun-Vie 8-20h · Sáb 8-17h · Cerrado Dom","rating":"4.5 Google Maps","desc":"Mercado cubierto de 1914 con estructura de hierro en dos pisos: balcones con puestos de flores, pescado, frutas, encajes. Reabierto en 2022 después de 4 años de restauración. El ambiente a las 9h con los locales comprando bacalao es el auténtico.","tip":"Llegar antes de las 10h para el ambiente de mercado real. Los puestos de flores en la planta baja son los más fotogénicos. Cerrado los domingos.","lines":"","name_en":"Bolhão Market","desc_en":"A covered 1914 market with a two-storey iron structure: balconies with flower, fish, fruit and lace stalls. Reopened in 2022 after 4 years of restoration. The atmosphere at 9:00 with locals buying bacalhau is the authentic one.","tip_en":"Arrive before 10:00 for the real market atmosphere. The flower stalls on the ground floor are the most photogenic. Closed Sundays."},{"day":"d4","name":"Capilla de las Almas","type":"spot","intensity":1,"isFriki":false,"icon":"1706","lat":41.1498821,"lng":-8.6056554,"maps":"https://maps.google.com/?cid=1230150224831809461","price":"Gratis","time":"15-20 min","hours":"Lun-Sáb 8-19h · Dom 9-13h y 17-20h","rating":"4.6 Google Maps","desc":"La fachada exterior con 15.947 azulejos azules y blancos es uno de los conjuntos de azulejos figurativos más grandes de Portugal: escenas de la vida de San Francisco de Asís y Santa Catalina en las dos fachadas. El edificio hace esquina — mejor desde el lado de la calle Fernando Tomás.","tip":"La fachada lateral (Fernando Tomás) tiene la perspectiva completa del conjunto de azulejos. En la Rua de Santa Catarina solo se ve un lado.","lines":"","name_en":"Chapel of Souls","desc_en":"The exterior facade with 15,947 blue and white tiles is one of Portugal's largest figurative tile ensembles: scenes from the lives of St Francis of Assisi and St Catherine across both facades. The building is on a corner — best seen from the Rua Fernando Tomás side.","tip_en":"The side facade (Fernando Tomás) gives the full perspective of the tile ensemble. From Rua de Santa Catarina you only see one side."},{"day":"d4","name":"Metro Trindade → Matosinhos-Sul","type":"transport","intensity":2,"isFriki":false,"icon":"1626","lat":41.152277,"lng":-8.609299,"maps":"https://maps.google.com/?cid=6153573161210910233","price":"","time":"","hours":"","rating":"","desc":"📍 Salida desde Trindade (5 min a pie desde los Aliados). Matosinhos-Sul es la última parada — no hay confusión posible. Salir por la salida ‘Praia’ — el mar está a 200m.","tip":"Salir de los Aliados hacia las 12-12:30h para llegar a Matosinhos a la 1h.","lines":"A / B / C / E","name_en":"Metro Trindade → Matosinhos-Sul","desc_en":"📍 Depart from Trindade (5-min walk from Aliados). Matosinhos-Sul is the last stop. Exit via the 'Praia' exit — the sea is 200m away.","tip_en":"Leave Aliados around 12:00-12:30 to arrive in Matosinhos by 13:00."},{"day":"d4","name":"Matosinhos Sul → Metro Trindade","type":"transport","intensity":2,"isFriki":false,"icon":"1626","lat":41.180171,"lng":-8.688553,"maps":"https://maps.google.com/?cid=5272984796018257445","price":"","time":"","hours":"","rating":"","desc":"📍 Bajar en Trindade — parada del centro. 5 min a pie al hotel o a cualquier punto del centro histórico.","tip":"Alternativa si se lleva equipaje o se está cansado: Uber desde Matosinhos al hotel, ~15 min, 12-15€.","lines":"A / B / C","name_en":"Matosinhos Sul → Metro Trindade","desc_en":"📍 Get off at Trindade — the city centre stop. 5-min walk to the hotel or any point in the historic centre.","tip_en":"Alternative if carrying luggage or tired: taxi from Matosinhos to the hotel, ~15 min, €12-15."},{"day":"d4","name":"Rua Heróis de França — comida en Matosinhos","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1811952,"lng":-8.693121,"maps":"https://maps.google.com/?q=R.+Her%C3%B3is+de+Fran%C3%A7a,+4450+Matosinhos,+Portugal&ftid=0xd246f25343dbe5f:0x9ce286411405b92c","price":"15-22€ por persona","time":"1-1.5h","hours":"Diario 12-16h y 19-23h","rating":"","desc":"La calle del pescado a la brasa de Portugal. Una docena de restaurantes uno al lado del otro haciendo lo mismo: dourada, robalo, linguado, bacalhau en brasa de carbón. Sin carta elaborada, sin turismo organizado. Los portuenses llevan generaciones viniendo aquí los domingos. Entrar al que tenga más locales dentro — es el único criterio necesario. Pedir la dourada entera a la brasa con patatas y ensalada.","tip":"","lines":"","name_en":"Rua Heróis de França — eat in Matosinhos","desc_en":"Portugal's charcoal fish street. A dozen restaurants side by side all doing the same thing: sea bream, sea bass, sole, bacalhau on charcoal. No elaborate menu, no organised tourism. Porto locals have been coming here on Sundays for generations.\nGo into whichever one has the most locals inside — that's the only criterion. Order the whole sea bream on charcoal with potatoes and salad."},{"day":"d4","name":"Praia de Matosinhos","type":"spot","intensity":2,"isFriki":false,"icon":"1521","lat":41.1763702,"lng":-8.6926763,"maps":"https://maps.google.com/?cid=6051791971068698687","price":"Gratis","time":"30-45 min","hours":"24h","rating":"","desc":"Playa atántica urbana de 2 km a 20 min del centro de Oporto. En mayo el agua está fría pero el paseo está lleno de familias, corredores y gente tomando el sol en las rocas. Las olas del Atlántico son visibles desde los restaurantes de la Rua Heróis de França. El Parque da Cidade empieza justo detrás de la playa — los dos se recorren juntos.","tip":"","lines":"","name_en":"Matosinhos Beach","desc_en":"A 2 km urban Atlantic beach 20 minutes from Porto's centre. In May the water is cold but the promenade is full of families, runners and people sunbathing on the rocks. The Atlantic waves are visible from the restaurants on Rua Heróis de França.\nParque da Cidade starts right behind the beach — the two are best covered together."},{"day":"d4","name":"Fuerte de San Francisco Javier","type":"spot","intensity":2,"isFriki":false,"icon":"1598","lat":41.1685772,"lng":-8.6899213,"maps":"https://maps.google.com/?q=Forte+de+S%C3%A3o+Francisco+Xavier,+Lea+da+Palmeira,+Portugal","price":"Gratis exterior","time":"15 min","hours":"24h exterior","rating":"","desc":"Fortaleza atlántica del siglo XVII en el límite entre la playa de Matosinhos y el puerto de Leixões. Los muros de granito oscurecido por el salitre se asientan sobre el litoral rocoso. Interior cerrado al público, pero el paseo por el perímetro tiene las mejores vistas del puerto industrial desde el nivel del mar.","tip":"Cinco minutos entre la playa y el Parque da Cidade. El ángulo desde el litoral rocoso al sur del fuerte, con la fortaleza de fondo y el puerto al norte, es el plano.","lines":"","name_en":"Fort of São Francisco Xavier","desc_en":"A 17th-century Atlantic fortress at the boundary between Matosinhos beach and Leixões port. The granite walls darkened by salt spray sit on the rocky shoreline. The interior is closed to the public, but the perimeter walk has the best views of the industrial port from sea level.\n","tip_en":"Five minutes between the beach and Parque da Cidade. The angle from the rocky shore south of the fort, with the fortress in the background and the port to the north, is the shot."},{"day":"d4","name":"Parque da Cidade","type":"spot","intensity":2,"isFriki":false,"icon":"1720","lat":41.1686739,"lng":-8.6788358,"maps":"https://maps.google.com/?cid=9869348635645350156","price":"Gratis","time":"45-60 min","hours":"Diario 8-21h","rating":"","desc":"El parque urbano más grande de Portugal: 83 hectáreas de praderas, lagos y bosque que llegan hasta el borde del Atlántico. Los fines de semana está lleno de familias portuenses, parejas, perros y picnics. El lago central tiene patos y barcas de remos. El acceso sur da directamente a la playa de Matosinhos. El cierre perfecto del viaje — verde, abierto, local. Entrar por la puerta norte (junto a la playa) y salir por el sur hacia la Foz si se quiere alargar el paseo.","tip":"","lines":"","name_en":"City Park","desc_en":"Portugal's largest urban park: 83 hectares of meadows, lakes and woodland reaching the Atlantic edge. At weekends it's full of Porto families, couples, dogs and picnics. The central lake has ducks and rowing boats. The southern entrance leads directly to Matosinhos beach.\nThe perfect end to the trip — green, open, local. Enter from the northern gate (next to the beach) and exit south towards Foz if you want to extend the walk."},{"day":"opt","name":"Rua de Santa Catarina — si el cuerpo aguanta","type":"spot","intensity":2,"isFriki":false,"icon":"1873","lat":41.1534763,"lng":-8.6047487,"maps":"https://maps.google.com/?q=R.+de+Santa+Catarina,+4000+Porto,+Portugal&ftid=0xd2464fa6d5fe651:0x46e05879a7514a6b","price":"Gratis","time":"15-20 min · paseo de vuelta","hours":"24h","rating":"4.4 Google Maps","desc":"La calle comercial peatonal más larga del centro de Oporto. Parada de vuelta al devolver el coche o al llegar en taxi. El Café Majestic (1921, Art Nouveau) vale la parada aunque solo sea para verlo desde fuera — terraza cara pero el interior es extraordinario.","tip":"La Capilla de las Almas en el número 428 tiene 15.000 azulejos en la fachada — el comienzo del Día 4 sin tener que volver.","lines":"","name_en":"Santa Catarina Street — if you still have energy","desc_en":"The longest pedestrianised shopping street in Porto's centre. Café Majestic (1921, Art Nouveau) is worth a look even just from outside — expensive terrace but the interior is extraordinary.","tip_en":"The Capilla das Almas at number 428 has 15,000 tiles on the facade."},{"day":"opt","name":"Casa de la Música — si el cuerpo aguanta","type":"spot","intensity":2,"isFriki":false,"icon":"1548","lat":41.1588467,"lng":-8.630737,"maps":"https://maps.google.com/?cid=14077895009127186669","price":"Visita guiada: 10€ · Conciertos desde 5-10€ (orquesta) hasta 40€","time":"45-60 min (visita arquitectónica) · Variable si hay concierto","hours":"Visitas: Lun-Sáb 11, 13 y 16h · Dom 11, 15 y 16h · Conciertos: consultar programa","rating":"4.5 Google Maps","desc":"Sala de conciertos de 2005 diseñada por Rem Koolhaas: poliedro de hormigón y cristal en medio de una rotonda. La lógica del edificio se ve solo desde dentro — el foyer tiene vista directa al Duero a través del escenario. Programación de la Orquestra Sinfónica do Porto.","tip":"ÚLTIMO PUNTO DEL DÍA — hay que ir en metro (línea B/C/E/F, estación Casa da Música, 1.50€) o taxi desde el centro (10 min, 8-10€). Si hay concierto de la orquesta sinfonía, las entradas básicas están entre 5-10€. La visita guiada del edificio vale la pena aunque no haya concierto.","lines":"","name_en":"Casa da Música concert hall — if you still have energy","desc_en":"A 2005 concert hall designed by Rem Koolhaas: a concrete and glass polyhedron in the middle of a roundabout. The building's logic only makes sense from inside — the foyer has a direct view of the Douro through the stage. Home to the Porto Symphony Orchestra.","tip_en":"Get there by metro (lines B/C/E/F, Casa da Música station, €1.50) or taxi from the centre (10 min, €8-10). If the symphony orchestra is playing, basic tickets are €5-10."}];
+const DAYS={
+  d1:{label:'Día 1',sub:'Llegada · Clérigos · Foz',time:'~4–8h'},
+  d2:{label:'Día 2',sub:'Sé · Ribeira · Gaia',time:'~7–9h'},
+  d3:{label:'Día 3',sub:'Day Trip: Guimarães → Braga',time:'~9h'},
+  d4:{label:'Día 4',sub:'Aliados · Bolhão · Matosinhos',time:'~7–9h'},
+  opt:{label:'Bonus',sub:'Si tienes tiempo',time:''},
+};
+const DACC={d1:'#8B5CF6',d2:'#E8541A',d3:'#0EA5E9',d4:'#10B981',opt:'#6B7280'};
+const DRGB={d1:'139,92,246',d2:'232,84,26',d3:'14,165,233',d4:'16,185,129',opt:'107,114,128'};
+const MM_MID={es:'1T91dxWMKfBNhKL8dihiWo-6d2MBhRmY',en:'1-eB4uc-XJ1D5V9i7kp4GPfkoaHSoaEI'};
+const EN_D={d1:'Day 1',d2:'Day 2',d3:'Day 3',d4:'Day 4',opt:'Bonus'};
+
+const TRANSPORT_MODES={
+  '1626':{es:'Metro',en:'Metro'},
+  '1533':{es:'Tranvía',en:'Tram'},
+  '1538':{es:'Bus',en:'Bus'},
+  '1521':{es:'Tren',en:'Train'},
+  '1751':{es:'Teleférico',en:'Cable Car'},
+  '1706':{es:'Barco',en:'Boat'},
+  '1873':{es:'Avión',en:'Flight'},
+  '1598':{es:'Coche',en:'Car'},
+};
+const MILESTONE_MSGS={
+  'Torre de los Clérigos':['76 metros de barroco — la mejor panorámica del centro histórico.','76 metres of baroque — the best panorama of the old town.'],
+  'Puente Don Luis I — nivel superior':['45 metros sobre el río — el puente que hizo grande el skyline de Oporto.','45 metres above the river — the bridge that made Porto\'s skyline iconic.'],
+  'Monasterio de la Serra do Pilar — mirador':['Único claustro circular de Portugal. Y la mejor foto del puente.','The only circular cloister in Portugal. And the best shot of the bridge.'],
+  'Iglesia de San Francisco':['400 kg de oro brasileño — el interior más recargado de Portugal.','400 kg of Brazilian gold — Portugal\'s most ornate interior.'],
+  'Bom Jesus do Monte — escalinata barroca':['581 peldaños en zigzag — la escalinata más fotografiada del país.','581 zigzag steps — the most photographed stairway in Portugal.'],
+  'Estação de São Bento':['20.000 azulejos pintados a mano — la estación de tren más bonita de Portugal.','20,000 hand-painted tiles — Portugal\'s most beautiful train station.'],
+  'Capilla de las Almas':['15.947 azulejos en dos fachadas — el azulejo como lenguaje narrativo.','15,947 tiles across two facades — azulejo as narrative language.'],
+};
+
+
+// State — restored from localStorage
+const LS_KEY='rm_oporto_v2';
+function loadState(){const s=JSON.parse(localStorage.getItem(LS_KEY)||'{}');return{lang:s.lang||'es',day:s.day||'d1',idx:parseInt(s.idx||'0')};}
+function saveState(){localStorage.setItem(LS_KEY,JSON.stringify({lang:_lang,day:_day,idx:_idx}));}
+
+let sv=loadState(),_lang=sv.lang,_day=sv.day,_idx=sv.idx,_hc=false,_mfT=null;
+const g=id=>document.getElementById(id);
+const tr=(s,f)=>(_lang==='en'&&s[f+'_en'])?s[f+'_en']:(s[f]||'');
+const sps=d=>SPOTS.filter(s=>s.day===d&&s.type!=='nightbefore'&&s.type!=='note');
+const ac=d=>DACC[d]||'#6B7280';
+
+const ANTES_EN={"Livraria Lello · D1": ["Livraria Lello · D1", "Art nouveau bookshop from 1906. Entry €8 (redeemable against a purchase). No booking, no entry in high season. Book at lello.pt · Arrive at 9:00 to skip the queue.", "Rowling lived nearby. She denied the Hogwarts connection. Brutal queue. Can be photographed at night through the shop window."], "Cata de vino en Gaia · D2": ["Wine tasting in Gaia · D2", "Wineries fill up in high season. Book online 1-2 days ahead at the winery's website. Graham's has the best terrace, Taylor's the best tour.", "Recommended"], "Casa da Música · Bonus": ["Casa da Música · Bonus", "Check the programme at casadamusica.com the night before. If there's a concert, buy online.", "If there's a concert"], "Alquiler de coche · D3": ["Car rental · D3", "Book in advance for the day trip to Guimarães and Braga. Bring your driving licence. Ask for a via verde tag for toll roads when picking up.", null], "Andante / Porto": ["Andante / Porto", "Metro and bus. Single ticket €1.50 · Day pass €5.20. Rechargeable Andante card (€0.60).", null], "Google Maps offline": ["Google Maps offline", "Download the Porto area offline before you leave.", null], "OPO → Centro": ["OPO → City centre", "<b>Metro line E</b> (purple) → Trindade · 35 min · €2 · Every 30 min.<br>Taxi: €20-25 · Private cab: €12-18.", null], "Mayo en Oporto": ["May in Porto", "15-20°C, chance of rain. Bring a light waterproof. Clear days are perfect for Foz and the viewpoints.", null], "Superbock, no Sagres": ["Superbock, not Sagres", "Superbock is Porto's beer. Ordering Sagres in a local bar raises eyebrows.", null], "Propinas": ["Tipping", "Table service: 5-10%. Bars and counter cafés: not expected.", null], "Azulejos desprendidos": ["Crumbling tiles", "Fallen tiles and deteriorating facades are the city's aesthetic, not neglect. Part of Porto's character.", null], "Agua del grifo": ["Tap water", "Safe to drink and good quality.", null], "Bacalhau · variable": ["Bacalhau · varies", "Portugal's national dish. Most common: à brás (with egg and shoestring potato), com natas (gratin) and assado (grilled).", null], "Francesinha · 12-15€": ["Francesinha · €12-15", "Porto's sandwich: toasted bread, meat, sausage, ham, melted cheese and spiced beer sauce. A Porto original.", null], "Pez a la brasa — Matosinhos · 15-22€": ["Charcoal fish — Matosinhos · €15-22", "Sea bream, sea bass or sole on charcoal at Rua Heróis de França. The best meal of the trip.", null], "Porto Tónico · 4-6€": ["Porto Tónico · €4-6", "White port wine with tonic and ice. The local summer aperitif at the riverside bars.", null]};
+const STR={
+  transit:{es:'Transporte',en:'Transit'},friki:{es:'Para frikis',en:'Nerd Pick'},
+  start:{es:'INICIO',en:'START'},
+  llevame:{es:'Llévame',en:'Take me there'},
+  searchph:{es:'Buscar en todos los días...',en:'Search all days...'},srempty:{es:'Sin resultados',en:'No results'},
+  ennudge:{es:'¿Te está siendo útil la guía?',en:'Finding the guide useful?'},
+  ensub:{es:'Una reseña nos ayuda mucho — 30 segundos.',en:'A review helps — 30 seconds.'},
+  enbtntxt:{es:'Valorar',en:'Review'},
+  idioma:{es:'Cambiar idioma',en:'Switch language'},idiomas:{es:'Actualmente: Español',en:'Currently: English'},
+  contraste:{es:'Alto contraste',en:'High contrast'},contrastes:{es:'Para leer al sol',en:'For reading in sunlight'},
+  cancelar:{es:'Cancelar',en:'Cancel'},
+  install:{es:'Guardar como app',en:'Save as app'},installs:{es:'En formato app se ve mucho mejor',en:'Looks much better as an app'},
+  guia:{es:'Guía completa',en:'Full guide'},guias:{es:'Descarga o imprime si no tienes datos',en:'Download or print if you lose signal'},
+  opciones:{es:'Opciones',en:'Options'},
+  feedback:{es:'Dar feedback',en:'Give feedback'},feedbacks:{es:'Ayúdanos a mejorar',en:'Help us improve'},
+  instbanner:{es:'Guarda RawMaps como app',en:'Save RawMaps as an app'},
+  instbannerbtn:{es:'Cómo',en:'How'},
+  insttitle:{es:'Guardar como app',en:'Save as app'},
+  instsub:{es:'Se ve mejor y funciona sin conexión.',en:'Looks better and works offline.'},
+  instios:{es:'iPhone / iPad · Safari',en:'iPhone / iPad · Safari'},
+  instiosd:{es:'Abre la guía en Safari → toca',en:'Open the guide in Safari → tap'},
+  instiosd2:{es:'→ "Añadir a pantalla de inicio" → Añadir',en:'→ "Add to Home Screen" → Add'},
+  instand:{es:'Android · Chrome',en:'Android · Chrome'},
+  instandd:{es:'Abre la guía en Chrome → toca',en:'Open in Chrome → tap'},
+  instandd2:{es:'→ "Añadir a pantalla de inicio" → Instalar',en:'→ "Add to Home Screen" → Install'},
+  instok:{es:'Entendido',en:'Got it'},
+  antesttl:{es:'Antes de tu viaje',en:'Before your trip'},
+  antessub:{es:'Todo lo que necesitas preparar',en:'Everything you need to sort out'},
+  anteslbl1:{es:'Entradas a reservar',en:'Tickets to book'},
+  anteslbl2:{es:'Reservar si puedes',en:'Book if you can'},
+  anteslbl3:{es:'Gestionar antes',en:'Sort out before'},
+  anteslbl4:{es:'Apps a instalar',en:'Apps to install'},
+  anteslbl5:{es:'Llegar',en:'Getting there'},
+  anteslbl6:{es:'Saber antes',en:'Good to know'},
+  anteslbl7:{es:'Comer en Oporto',en:'Eating in Porto'},
+  antes:{es:'Antes',en:'Before'},
+};
+const s$=k=>(STR[k]&&STR[k][_lang])||(STR[k]&&STR[k].es)||k;
+
+const MS_ICO={
+  star:'<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  zap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+};
+
+function getMilestone(s,idx,total){
+  const e=_lang==='en',nm=tr(s,'name');
+  if(idx===0)return{ico:'flag',c:'#1D4ED8',bg:'#EFF6FF',bc:'#BFDBFE',txt:e?`First stop: ${nm}.`:`Primera: ${nm}. ¡Empezamos!`};
+  if(idx===total-1)return{ico:'check',c:'#059669',bg:'#ECFDF5',bc:'#A7F3D0',txt:e?`Last stop: ${nm}. Day done.`:`Última: ${nm}. El día está hecho.`};
+  const pct=total>1?idx/(total-1):0;
+  if(pct>=0.47&&pct<=0.55)return{ico:'zap',c:'#D97706',bg:'#FFFBEB',bc:'#FDE68A',txt:e?'Halfway through the route.':'Llevas la mitad de la ruta.'};
+  if(s.intensity===1&&s.type!=='transport'){
+    const m=MILESTONE_MSGS[s.name]||MILESTONE_MSGS[s.name_en];
+    const txt=m?(e?m[1]:m[0]):`${nm} — ${e?'RawMaps pick.':'RawMaps recomienda.'}`;
+    return{ico:'star',c:'#B45309',bg:'#FFFBEB',bc:'#FDE68A',txt};
+  }
+  return null;
+}
+
+function renderMilestone(s,idx,total){
+  const el=g('milestone'),m=getMilestone(s,idx,total);
+  if(!m){el.classList.remove('show');return;}
+  el.style.color=m.c;el.style.background=m.bg;el.style.borderColor=m.bc;
+  g('ms-ico').innerHTML=MS_ICO[m.ico]||MS_ICO.star;g('ms-text').textContent=m.txt;el.classList.add('show');
+}
+
+function setAcc(d){
+  const c=ac(d),r=DRGB[d]||'107,114,128';
+  document.documentElement.style.setProperty('--acc',c);
+  document.documentElement.style.setProperty('--acc-rgb',r);
+  g('prog-fill').style.background=c;g('nbn').style.background=c;
+  g('mstripe').style.background=c;
+  const acc=g('logo-acc');if(acc)acc.style.color=c;
+  const ts=g('tip')&&g('tip').querySelector('svg');if(ts)ts.style.color=c;
+  // Update browser theme color
+  const tc=document.querySelector('meta[name="theme-color"]');
+  if(tc)tc.setAttribute('content',c);
+  // Update html/body background with light tint of day color
+  const lightBg=`rgba(${r},.04)`;
+  document.documentElement.style.background=lightBg;
+  document.body.style.background=lightBg;
+  // Update header gradient directly (CSS var() inside gradients doesn't always repaint)
+  const hdr=g('header');if(hdr){if(document.body.classList.contains('hc')){hdr.style.background='';}else{hdr.style.background=`linear-gradient(125deg,rgba(${r},.07) 0%,rgba(${r},.03) 38%,transparent 65%),#FFFFFF`;}}
+  const app=g('app');
+  if(app){const border=`1px solid rgba(${r},.15)`;app.style.borderTop=border;app.style.borderBottom=border;}
+  // Pill colours — HC-aware
+  const pre=document.querySelector('.dc-pre');
+  if(pre){pre.style.background=_hc?c:'var(--ink)';pre.style.borderColor=_hc?c:'var(--ink)';pre.style.color='#fff';}
+  document.querySelectorAll('.dc').forEach(b=>{
+    if(b.dataset.d===d){b.style.background=c;b.style.borderColor=c;b.style.color='#fff';}
+    else{b.style.background=_hc?'rgba(244,244,245,.08)':'var(--paper)';b.style.borderColor=_hc?'rgba(244,244,245,.14)':'rgba(26,26,26,.12)';b.style.color=_hc?'rgba(244,244,245,.68)':'rgba(26,26,26,.5)';}
+  });
+}
+function tHC(){_hc=!_hc;document.body.classList.toggle('hc',_hc);cMenu();setAcc(_day);}
+
+function renderDays(){
+  const antesLbl=s$('antes');
+  const antesPill=`<button class="dc-pre" onclick="openAntes()">${antesLbl}</button>`;
+  g('days').innerHTML=antesPill+Object.keys(DAYS).map(id=>{
+    const n=(id==='opt'?'Bonus':(_lang==='en'?'Day ':'Día ')+id.replace('d',''));
+    return`<button class="dc${id===_day?' on':''}" data-d="${id}" onclick="selDay('${id}')">${n}</button>`;
+  }).join('');setAcc(_day);
+}
+
+function renderProg(){
+  const all=sps(_day),t=all.length;
+  if(_idx>=t)_idx=Math.max(0,t-1);
+  g('prog-ct').textContent=(_idx+1)+'/'+t;
+  g('prog-fill').style.width=(t>1?Math.round(_idx/(t-1)*100):100)+'%';
+  const c=g('prog-dots');c.innerHTML='';
+  if(t<=1){const d=document.createElement('div');d.className='pdot pdot-cur';c.appendChild(d);return;}
+  all.forEach((s,i)=>{
+    const isCur=i===_idx,isDone=i<_idx;
+    let cls='pdot ';
+    const halfIdx=Math.round((t-1)*0.5);
+    if(isCur)cls+='pdot-cur';
+    else if(!isCur&&i===halfIdx)cls='pdot pdot-half';
+    else cls+='pdot-reg'+(isDone?' done':'');
+    const dot=document.createElement('div');dot.className=cls;dot.title=s.name||'';
+    dot.onclick=()=>{const dir=i>_idx?1:-1;_idx=i;renderProg();renderCard(true,dir);};
+    c.appendChild(dot);
+  });
+}
+
+let _pdrag=false;
+const pi=g('prog-inner');
+pi.addEventListener('touchstart',e=>{_pdrag=true;handlePT(e.touches[0].clientX);},{passive:true});
+pi.addEventListener('touchmove',e=>{if(_pdrag){handlePT(e.touches[0].clientX);e.preventDefault();}},{passive:false});
+pi.addEventListener('touchend',()=>{_pdrag=false;},{passive:true});
+pi.addEventListener('mousedown',e=>{_pdrag=true;handlePT(e.clientX);});
+document.addEventListener('mousemove',e=>{if(_pdrag)handlePT(e.clientX);});
+document.addEventListener('mouseup',()=>{_pdrag=false;});
+function handlePT(cx){
+  const rect=pi.getBoundingClientRect(),pct=Math.max(0,Math.min(1,(cx-rect.left)/rect.width));
+  const all=sps(_day),ni=Math.round(pct*(all.length-1));
+  if(ni!==_idx){const dir=ni>_idx?1:-1;_idx=ni;renderProg();renderCard(true,dir);if(navigator.vibrate)navigator.vibrate(4);}
+}
+
+
+
+function loadMap(s){
+  if(_mfT){clearTimeout(_mfT);_mfT=null;}
+  const frame=g('mframe');frame.classList.remove('vis');
+  const mid=MM_MID[_lang]||MM_MID.es;
+  const lat=s.lat||41.1579,lng=s.lng||-8.6291,z=s.lat?17:13;
+  const url=`https://www.google.com/maps/d/embed?mid=${mid}&ll=${lat},${lng}&z=${z}&output=embed`;
+  if(frame.src!==url){
+    frame.addEventListener('load',()=>{frame.classList.add('vis');},{once:true});
+    _mfT=setTimeout(()=>{frame.src=url;},80);
+  }else{frame.classList.add('vis');}
+}
+
+function scrollToBottom(){g('cw').scrollTo({top:g('cw').scrollHeight,behavior:'smooth'});}
+function updateScrollFade(){
+  const cw=g('cw'),fade=g('scroll-fade'),cta=g('scroll-cta');
+  const overflow=cw.scrollHeight-cw.clientHeight,atBottom=cw.scrollHeight-cw.scrollTop-cw.clientHeight<12;
+  const show=overflow>16&&!atBottom;
+  fade.style.opacity=show?'1':'0';cta.style.opacity=show?'1':'0';cta.style.pointerEvents=show?'auto':'none';
+}
+
+function getTransportMode(s){const m=TRANSPORT_MODES[s.icon];return m?(_lang==='en'?m.en:m.es):(_lang==='en'?'Transit':'Transporte');}
+const SV={
+  eu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10h12M4 14h12M19.5 7A7 7 0 1019.5 17"/></svg>',
+  cl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  dr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M9 21V5a2 2 0 012-2h2a2 2 0 012 2v16"/></svg>',
+  st:'<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  fl:'<svg width="14" height="14" viewBox="8 0 84 100" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m50 2.5c-21.602 0-39.199 17.602-39.199 39.398 0 21.801 25.098 55.602 39.199 55.602s39.199-33.801 39.199-55.602c0-21.797-17.598-39.398-39.199-39.398zm-5.3984 60.898c0 1.1016-0.89844 2-2 2-1.3984 0-3.1016 0-5-0.39844-6.8008-1.3008-11-5.3984-12.301-6.6992-4.3984-4.3984-5.8984-9.1992-6.1992-10.301-1-3.3984-1-6.5-0.80078-8.6016 0.10156-1.1016 1-1.8984 2.1016-1.8984 3.6016 0.10156 11.5 1.1016 17.602 7.6992 6.2969 6.6992 6.7969 14.602 6.5977 18.199zm30.098-5c-1.3008 1.3008-5.5 5.3008-12.301 6.6992-1.8984 0.39844-3.6016 0.39844-5 0.39844-1.1016 0-2-0.89844-2-2-0.19922-3.6016 0.30078-11.5 6.5-18.102 6.1992-6.6016 14-7.6016 17.602-7.6992 1.1016 0 2 0.80078 2.1016 1.8984 0.19922 2.1992 0.19922 5.1992-0.80078 8.6016-0.19922 0.90625-1.6016 5.8047-6.1016 10.203z"/></svg>',
+};
+function localizeFact(str){if(_lang==='es'||!str)return str;return str.replace(/gratis/gi,'Free').replace('solo exterior','exterior only');}
+
+function renderCard(anim,dir){
+  const all=sps(_day),s=all[_idx];if(!s)return;
+  const card=g('card');
+  if(anim){
+    const dx=dir>=0?'12px':'-12px';
+    card.style.transition='none';card.style.opacity='0';card.style.transform=`translateX(${dx})`;
+    void card.offsetWidth;
+    card.style.transition='opacity .2s ease,transform .25s cubic-bezier(.25,.46,.45,.94)';
+    card.style.opacity='1';card.style.transform='translateX(0)';
+    setTimeout(()=>{card.style.transition='';card.style.transform='';},260);
+  } else {
+    card.style.opacity='0';void card.offsetWidth;card.style.transition='opacity .18s';card.style.opacity='1';
+    setTimeout(()=>card.style.transition='',180);
+  }
+  g('cw').scrollTop=0;setAcc(s.day);renderMilestone(s,_idx,all.length);
+  const isStart=s.name&&(s.name.includes('SALIDA')||s.name.includes('START'));
+  g('sbadge').className=isStart?'show':'';g('sbadge-t').textContent=s$('start');
+  let typeLabel='';
+  if(s.type==='transport')typeLabel=s$('transit');
+  else if(s.isFriki)typeLabel=s$('friki');
+  else typeLabel=(_lang==='en'?(EN_D[_day]||DAYS[_day]?.label):DAYS[_day]?.label)||'';
+  g('mz-type').textContent=typeLabel;g('mz-name').textContent=tr(s,'name');
+  loadMap(s);
+  let f='';
+  if(s.price)f+=`<span class="kf">${SV.eu} ${localizeFact(s.price)}</span>`;
+  if(s.time)f+=`<span class="kf">${SV.cl} ${s.time}</span>`;
+  if(s.hours){
+    // Truncate hours to first segment only (before ·)
+    const h=localizeFact(s.hours).split('·')[0].trim();
+    f+=`<span class="kf">${SV.dr} ${h}</span>`;
+  }
+  if(s.rating)f+=`<span class="kf">${SV.st} ${s.rating}</span>`;
+  if(s.lines)f+=`<span class="kf"><span style="font-weight:700;letter-spacing:.01em">${getTransportMode(s)}</span> ${s.lines}</span>`;
+  if(s.isFriki)f+=`<span class="kf kf-np">${SV.fl} ${s$('friki')}</span>`;
+  g('facts').innerHTML=f;g('desc').textContent=tr(s,'desc')||'';
+  const tip=tr(s,'tip'),te=g('tip'),tb=g('tip-bar');
+  if(tip){
+    if(tb){tb.style.display='flex';g('tip-text').textContent=tip;}
+    te.style.display='none';
+  } else {
+    if(tb)tb.style.display='none';
+    te.style.display='none';
+  }
+  const abgo=g('ab-go'),gUrl=s.maps||(s.lat?`https://maps.google.com/?q=${s.lat},${s.lng}&z=17`:'');
+  if(gUrl){abgo.href=gUrl;abgo.style.opacity='';abgo.style.pointerEvents='';}
+  else{abgo.removeAttribute('href');abgo.style.opacity='.35';abgo.style.pointerEvents='none';}
+  g('lgo').textContent=s$('llevame');
+  g('nbp').disabled=(_idx===0);g('nbn').disabled=(_idx===all.length-1);
+  setTimeout(updateScrollFade,80);checkEtsyNudge(_idx,all.length);
+  saveState();
+}
+
+function openMyMaps(){
+  const s=sps(_day)[_idx];
+  const lat=s&&s.lat?s.lat:41.147,lng=s&&s.lng?s.lng:-8.609,z=s&&s.lat?15:12;
+  const src='https://www.google.com/maps/d/embed?mid='+MM_MID[_lang]+'&ll='+lat+','+lng+'&z='+z;
+  document.getElementById('map-frame').src=src;
+  document.getElementById('map-ov').classList.add('on');
+}
+function closeMap(){
+  document.getElementById('map-ov').classList.remove('on');
+  setTimeout(function(){document.getElementById('map-frame').src='';},300);
+}
+
+function go(dir){
+  const all=sps(_day),ni=_idx+dir;
+  if(ni<0||ni>=all.length)return;
+  _idx=ni;renderProg();renderCard(true,dir);if(navigator.vibrate)navigator.vibrate(6);
+}
+function selDay(id){_day=id;_idx=0;renderDays();renderProg();renderCard(true,1);}
+function swLang(){cMenu();_lang=_lang==='es'?'en':'es';updateAllI18n();updateAllI18n();
+renderDays();renderProg();renderCard(false,0);}
+function updateAllI18n(){
+  const e=_lang==='en';
+  const lt=g('lang-tog');if(lt)lt.textContent=e?'EN':'ES';
+  const ibt=g('ib-txt');if(ibt)ibt.textContent=s$('instbanner');
+  const ibbn=g('ib-btn-txt');if(ibbn)ibbn.textContent=s$('instbannerbtn');
+  const it=g('inst-title');if(it)it.textContent=s$('insttitle');
+  const is=g('inst-sub');if(is)is.textContent=s$('instsub');
+  const iok=g('inst-ok-txt');if(iok)iok.textContent=s$('instok');
+  const iost=g('inst-ios-t');if(iost)iost.textContent=s$('instios');
+  const iosd=g('inst-ios-d');if(iosd)iosd.innerHTML=s$('instiosd')+' <span class="is-tag">↑</span> '+s$('instiosd2');
+  const andt=g('inst-and-t');if(andt)andt.textContent=s$('instand');
+  const andd=g('inst-and-d');if(andd)andd.innerHTML=s$('instandd')+' <span class="is-tag">⋮</span> '+s$('instandd2');
+  const et=g('en-title');if(et)et.textContent=s$('ennudge');
+  const esn=g('en-sub');if(esn)esn.textContent=s$('ensub');
+  const eb=g('en-btn-txt');if(eb)eb.textContent=s$('enbtntxt');
+  const att=g('antes-ttl');if(att)att.textContent=s$('antesttl');
+  const ats=g('antes-sub-txt');if(ats)ats.textContent=s$('antessub');
+  const esNames=['Livraria Lello · D1','Cata de vino en Gaia · D2','Casa da Música · Bonus','Alquiler de coche · D3','Andante / Porto','Google Maps offline','OPO → Centro','Mayo en Oporto','Superbock, no Sagres','Propinas','Azulejos desprendidos','Agua del grifo','Bacalhau · variable','Francesinha · 12-15€','Pez a la brasa — Matosinhos · 15-22€','Porto Tónico · 4-6€'];
+  const ids=['lello','wine','musica','car','andante','gmaps','airport','weather','beer','tips','tiles','water','bacalhau','francesinha','fish','tonic'];
+  const tagEsArr=['Rowling vivió cerca. Negó la conexión con Hogwarts. Cola brutal. Se puede fotografiar de noche desde el escaparate.','Recomendado','Si hay concierto'];
+  ids.forEach((id,i)=>{
+    const en=ANTES_EN[esNames[i]];if(!en)return;
+    const nd=g('an-'+id+'n');if(nd)nd.textContent=e?en[0]:esNames[i];
+    const dd=g('an-'+id+'d');if(dd)dd.innerHTML=e?en[1]:(dd.dataset.es||dd.innerHTML);
+    if(i<3){const td=g('an-'+id+'t');if(td)td.textContent=e?(en[2]||''):(tagEsArr[i]||'');}
+  });
+  document.querySelectorAll('[data-str]').forEach(el=>{const k=el.dataset.str;if(STR[k])el.textContent=s$(k);});
+}
+
+function oMenu(){
+  g('mhd').textContent=s$('opciones');
+  g('mtg').textContent=s$('guia');g('msg').textContent=s$('guias');
+  g('mtfb').textContent=s$('feedback');g('msfb').textContent=s$('feedbacks');
+  g('mtinstall').textContent=s$('install');g('msinstall').textContent=s$('installs');
+  g('mthc').textContent=s$('contraste');g('mshc').textContent=s$('contrastes');
+  g('mcnc').textContent=s$('cancelar');g('mov').classList.add('on');
+}
+function cMenu(){var sh=g('msh');sh.style.transform='translateY(110%)';setTimeout(function(){g('mov').classList.remove('on');sh.style.transform='';},290);}
+(function(){var sh=document.getElementById('msh'),sY=0,cY=0;sh.addEventListener('touchstart',function(e){sY=e.touches[0].clientY;cY=sY;sh.style.transition='none';},{passive:true});sh.addEventListener('touchmove',function(e){cY=e.touches[0].clientY;var d=cY-sY;if(d>0)sh.style.transform='translateY('+d+'px)';},{passive:true});sh.addEventListener('touchend',function(){if(cY-sY>60){sh.style.transition='transform .18s ease-in';sh.style.transform='translateY(110%)';setTimeout(function(){g('mov').classList.remove('on');sh.style.transform='';sh.style.transition='';},180);}else{sh.style.transition='transform .28s cubic-bezier(.25,.46,.45,.94)';sh.style.transform='';}},{passive:true});})();
+function openFeedback(){window.open('https://tally.so/r/aQAXq9','_blank');}
+function openGuide(){cMenu();const url=_lang==='en'?'https://fernbs.github.io/rawmaps/oporto/rawmaps_oporto_en.html':'https://fernbs.github.io/rawmaps/oporto/rawmaps_oporto_es.html';window.open(url,'_blank');}
+function openAntes(){document.getElementById('antes-ov').classList.add('on');}
+function closeAntes(){document.getElementById('antes-ov').classList.remove('on');}
+
+(function(){const sa=window.navigator.standalone===true||window.matchMedia('(display-mode:standalone)').matches;if(!sa)setTimeout(()=>{const b=g('install-banner');if(b)b.classList.add('show');},1500);})();
+function showInstall(){g('install-ov').classList.add('on');}
+function closeInstall(){g('install-ov').classList.remove('on');}
+function dismissInstall(){g('install-banner').classList.remove('show');}
+
+const DACC_S={d1:'#8B5CF6',d2:'#E8541A',d3:'#0EA5E9',d4:'#10B981',opt:'#6B7280'};
+function openSearch(){g('search-ov').classList.add('on');g('search-input').value='';g('search-results').innerHTML='';g('search-input').placeholder=s$('searchph');setTimeout(()=>g('search-input').focus(),120);}
+function closeSearch(){g('search-ov').classList.remove('on');g('search-input').blur();}
+function doSearch(q){
+  const query=q.trim().toLowerCase(),container=g('search-results');
+  if(!query){container.innerHTML='';return;}
+  const matches=SPOTS.filter(s=>{if(s.type==='nightbefore'||s.type==='note')return false;return[s.name,s.name_en,s.desc,s.desc_en,s.tip,s.tip_en,s.lines,s.price].filter(Boolean).join(' ').toLowerCase().includes(query);});
+  if(!matches.length){container.innerHTML=`<div class="sr-empty">${s$('srempty')}</div>`;return;}
+  const dL=id=>id==='opt'?(_lang==='en'?'Opt':'Opc'):(_lang==='en'?'Day ':'Día ')+id.replace('d','');
+  container.innerHTML=matches.map(s=>{const all=sps(s.day),idx=all.indexOf(s),nm=(_lang==='en'&&s.name_en)?s.name_en:s.name,desc=(_lang==='en'&&s.desc_en)?s.desc_en:(s.desc||'');return`<div class="sr" onclick="goToSpot('${s.day}',${idx})"><span class="sr-chip" style="background:${DACC_S[s.day]||'#6B7280'}">${dL(s.day)}</span><div class="sr-body"><div class="sr-name">${nm||''}</div><div class="sr-desc">${desc.substring(0,80)}${desc.length>80?'…':''}</div></div></div>`;}
+  ).join('');
+}
+function goToSpot(day,idx){
+  g('search-input').blur();
+  setTimeout(()=>g('search-ov').classList.remove('on'),50);
+  setTimeout(()=>{_day=day;_idx=idx;renderDays();renderProg();renderCard(true,1);},320);
+}
+
+let _nudgeDismissed=false;
+function showEtsyNudge(){if(_nudgeDismissed||sessionStorage.getItem('en-d'))return;setTimeout(()=>{const n=g('etsy-nudge');if(n)n.classList.add('show');},800);}
+function closeEtsyNudge(){g('etsy-nudge').classList.remove('show');_nudgeDismissed=true;sessionStorage.setItem('en-d','1');}
+function checkEtsyNudge(idx,total){if(idx===total-1)showEtsyNudge();}
+
+g('cw').addEventListener('scroll',updateScrollFade,{passive:true});
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey&&e.key==='p'){e.preventDefault();openGuide();return;}
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
+  if(e.key==='Escape'){closeSearch();closeInstall();cMenu();}
+});
+
+updateAllI18n();
+renderDays();renderProg();renderCard(false,0);
+setTimeout(updateScrollFade,150);
+// Touch press animations
+(function(){
+  const MAP=[
+    ['.h-btn','rgba(26,26,26,.18)'],
+    ['.dc','rgba(26,26,26,.12)'],
+    ['.dc-pre','rgba(0,0,0,.25)'],
+    ['#lang-tog','rgba(26,26,26,.18)'],
+    ['#nbp','rgba(26,26,26,.22)'],
+    ['#nbn','rgba(0,0,0,.3)'],
+    ['#mz-mm-btn','rgba(26,26,26,.15)'],
+    ['#ab-go','rgba(255,255,255,.12)'],
+    ['#ib-btn','rgba(0,0,0,.2)'],
+    ['#ib-x','rgba(0,0,0,.2)'],
+    ['#antes-close','rgba(26,26,26,.15)'],
+    ['#en-btn','rgba(0,0,0,.2)'],
+    ['#en-close','rgba(26,26,26,.15)'],
+    ['#scroll-cta','rgba(26,26,26,.1)'],
+    ['#install-ok','rgba(255,255,255,.15)'],
+    ['#mcnc','rgba(26,26,26,.08)']
+  ];
+  function find(el){
+    for(let i=0;i<6;i++){
+      if(!el||el===document.body)return null;
+      for(const[s]of MAP)if(el.matches&&el.matches(s))return el;
+      el=el.parentElement;
+    }
+    return null;
+  }
+  function getOverlay(el){
+    for(const[s,c]of MAP)if(el.matches&&el.matches(s))return c;
+    return null;
+  }
+  let _cur=null,_orig=null;
+  document.addEventListener('touchstart',e=>{
+    const t=find(e.touches[0].target);
+    if(!t)return;
+    _cur=t;
+    _orig=t.style.opacity;
+    t.style.opacity='0.55';
+    t.style.transform='scale(0.92)';
+    t.style.transition='none';
+  },{passive:true});
+  function up(){
+    if(!_cur)return;
+    const t=_cur;_cur=null;
+    t.style.transition='opacity .2s ease, transform .2s ease';
+    t.style.opacity=_orig||'';
+    t.style.transform='scale(1)';
+    setTimeout(()=>{t.style.transition='';t.style.transform='';t.style.opacity='';},220);
+  }
+  document.addEventListener('touchend',up,{passive:true});
+  document.addEventListener('touchcancel',up,{passive:true});
+})();</script>
+</body>
+</html>
