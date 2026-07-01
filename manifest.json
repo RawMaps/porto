@@ -1,6 +1,6 @@
 {
   "name": "RawMaps · Oporto",
-  "short_name": "rawmaps",
+  "short_name": "RawMaps",
   "start_url": "/porto/",
   "scope": "/porto/",
   "display": "standalone",
